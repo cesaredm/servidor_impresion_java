@@ -4,6 +4,7 @@
  */
 package httpHandle;
 
+import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.*;
@@ -18,11 +19,11 @@ import java.util.logging.Logger;
  *
  * @author cesar
  */
-
 public class PrintHandler implements HttpHandler {
 
     private static final Logger LOGGER = Logger.getLogger(PrintHandler.class.getName());
     private final Map<String, PrinterConfig> printers;
+    private final Gson json = new Gson();
 
     public PrintHandler(Map<String, PrinterConfig> printers) {
         this.printers = printers;
@@ -30,14 +31,25 @@ public class PrintHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        String response = "Error interno del servidor.";
+        //String response = "Error interno del servidor.";
         int statusCode = 500;
+        String message = "";
+        Map<String, Object> response;
 
         try {
+
+            if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                statusCode = 200;
+                response = Map.of("Impresoras", Printescpos.listaImpresorasDisponibles());
+                sendResponse(exchange, response, statusCode);
+            }
+
             // 1. Verificar método (solo aceptamos POST)
             if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
-                response = "Método no permitido. Use POST.";
+                message = "Método no permitido. Use POST.";
+                response = Map.of("message", message);
                 statusCode = 405; // Method Not Allowed
+
                 sendResponse(exchange, response, statusCode);
                 return;
             }
@@ -48,7 +60,8 @@ public class PrintHandler implements HttpHandler {
             String printerName = extractPrinterName(path);
 
             if (printerName == null || printerName.isEmpty()) {
-                response = "Nombre de impresora no especificado en la URL. Use /print/{nombreImpresora}";
+                message = "Nombre de impresora no especificado en la URL. Use /print/{nombreImpresora}";
+                response = Map.of("message", message);
                 statusCode = 400; // Bad Request
                 sendResponse(exchange, response, statusCode);
                 return;
@@ -57,7 +70,8 @@ public class PrintHandler implements HttpHandler {
             // 3. Buscar la configuración de la impresora
             PrinterConfig config = printers.get(printerName);
             if (config == null) {
-                response = "Impresora '" + printerName + "' no encontrada en la configuración.";
+                message = "Impresora '" + printerName + "' no encontrada en la configuración.";
+                response = Map.of("message", message);
                 statusCode = 404; // Not Found
                 sendResponse(exchange, response, statusCode);
                 return;
@@ -69,34 +83,37 @@ public class PrintHandler implements HttpHandler {
             byte[] printData = readAllBytes(requestBody); // Leer todo el cuerpo
 
             if (printData == null || printData.length == 0) {
-                 response = "No se recibieron datos para imprimir.";
-                 statusCode = 400; // Bad Request
-                 sendResponse(exchange, response, statusCode);
-                 return;
+                message = "No se recibieron datos para imprimir.";
+                response = Map.of("message", message);
+                statusCode = 400; // Bad Request
+                sendResponse(exchange, response, statusCode);
+                return;
             }
 
             // 5. Enviar los datos a la impresora
             LOGGER.log(Level.INFO, "Enviando {0} bytes a la impresora: {1} ({2}:{3})",
-                       new Object[]{printData.length, config.getNombre(), config.getIp(), config.getPuerto()});
+                    new Object[]{printData.length, config.getNombre(), config.getIp(), config.getPuerto()});
 
             sendToPrinter(config, printData);
 
             // 6. Enviar respuesta exitosa
-            response = "Trabajo enviado a la impresora '" + printerName + "' exitosamente.";
+            message = "Trabajo enviado a la impresora '" + printerName + "' exitosamente.";
+            response = Map.of("message", message);
             statusCode = 200; // OK
-            LOGGER.info(response);
+            LOGGER.info(message);
 
         } catch (IOException e) {
-            response = "Error de E/S al procesar la impresión para '"
-                       + extractPrinterName(exchange.getRequestURI().getPath()) + "': " + e.getMessage();
+            message = "Error de E/S al procesar la impresión para '"
+                    + extractPrinterName(exchange.getRequestURI().getPath()) + "': " + e.getMessage();
             statusCode = 500; // Internal Server Error
-            LOGGER.log(Level.SEVERE, response, e);
+            LOGGER.log(Level.SEVERE, message, e);
         } catch (Exception e) {
-            response = "Error inesperado: " + e.getMessage();
+            message = "Error inesperado: " + e.getMessage();
             statusCode = 500;
-            LOGGER.log(Level.SEVERE, response, e);
+            LOGGER.log(Level.SEVERE, message, e);
         } finally {
-             // Asegurarse de enviar siempre una respuesta al cliente
+            // Asegurarse de enviar siempre una respuesta al cliente
+            response = Map.of("message", message);
             sendResponse(exchange, response, statusCode);
         }
     }
@@ -124,12 +141,9 @@ public class PrintHandler implements HttpHandler {
         return buffer.toByteArray();
     }
 
-
     private void sendToPrinter(PrinterConfig config, byte[] data) throws IOException {
         // Usamos try-with-resources para asegurar que el socket y los streams se cierren
-        try (Socket socket = new Socket(config.getIp(), config.getPuerto());
-             OutputStream out = socket.getOutputStream())
-        {
+        try (Socket socket = new Socket(config.getIp(), config.getPuerto()); OutputStream out = socket.getOutputStream()) {
             // Establecer un timeout de conexión y lectura podría ser buena idea
             socket.setSoTimeout(5000); // 5 segundos de timeout de lectura/escritura
 
@@ -152,17 +166,19 @@ public class PrintHandler implements HttpHandler {
             // out.write(LF);
             // out.write(PARTIAL_CUT);
             // out.flush();
-
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Error al conectar o enviar datos a la impresora " + config.getNombre(), e);
             throw e; // Relanzar para que el handler sepa que hubo un error
         }
     }
 
-    private void sendResponse(HttpExchange exchange, String response, int statusCode) throws IOException {
+    private void sendResponse(HttpExchange exchange, Map<String, Object> response, int statusCode) throws IOException {
         // Asegúrate de que la respuesta sea UTF-8 para compatibilidad
-        byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
-        exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=utf-8");
+        //byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+        String jsonResponse = this.json.toJson(response);
+        byte[] responseBytes = jsonResponse.getBytes(StandardCharsets.UTF_8);
+        //exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=utf-8");
+        exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
         exchange.sendResponseHeaders(statusCode, responseBytes.length);
         try (OutputStream os = exchange.getResponseBody()) {
             os.write(responseBytes);
