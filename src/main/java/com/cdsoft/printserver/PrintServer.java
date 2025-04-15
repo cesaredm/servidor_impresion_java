@@ -60,6 +60,21 @@ public class PrintServer {
             if (parts.length == 2) {
                 String printerName = parts[0];
                 String propName = parts[1];
+                /*
+                    Cuando procesamos la primera propiedad de una impresora (digamos "cocina.ip"), printerName es "cocina".
+                    computeIfAbsent busca "cocina" en printerPropsByName. Como es la primera vez, no la encuentra.
+                    Ejecuta k -> new HashMap<>(), lo que crea un nuevo HashMap vacío.
+                    Inserta ("cocina", nuevoHashMapVacio) en printerPropsByName.
+                    Devuelve nuevoHashMapVacio.
+                
+                    Esto significa: "En el mapa interno que computeIfAbsent me devolvió, añade la propiedad actual".
+
+                    Siguiendo el ejemplo de "cocina.ip": computeIfAbsent devolvió el nuevoHashMapVacio. La llamada .put("ip", "192.168.1.100") se ejecuta sobre ese nuevo mapa. Ahora el mapa interno para "cocina" contiene {"ip": "192.168.1.100"}.
+                    Cuando luego procesamos "cocina.port", printerName es "cocina" de nuevo.
+                    computeIfAbsent busca "cocina". Esta vez sí la encuentra.
+                    Devuelve el mapa interno que ya existe (el que ahora contiene {"ip": "192.168.1.100"}).
+                    La llamada encadenada .put("port", "9100") se ejecuta sobre ese mapa existente. Ahora el mapa interno para "cocina" contiene {"ip": "192.168.1.100", "port": "9100"}.
+                */
                 printerPropsByName.computeIfAbsent(printerName, k -> new HashMap<>())
                                  .put(propName, props.getProperty(key));
             }
@@ -98,6 +113,7 @@ public class PrintServer {
         // Crear contexto para las peticiones de impresión
         // La URL será http://<IP_SERVIDOR>:<SERVER_PORT>/print/{nombreImpresora}
         server.createContext("/print", new PrintHandler(printers));
+        server.createContext("/impresoras", new PrintHandler(printers));
 
         // Usar un pool de hilos para manejar peticiones concurrentes
         server.setExecutor(Executors.newCachedThreadPool());
