@@ -1,4 +1,3 @@
-httpHandle\ApiResponse.class
 com\cdsoft\printserver\PrintServer.class
 httpHandle\Printescpos.class
 httpHandle\PrintHandler.class

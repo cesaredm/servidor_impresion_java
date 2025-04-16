@@ -37,11 +37,13 @@ public class PrintHandler implements HttpHandler {
         Map<String, Object> response;
 
         try {
+            URI url = exchange.getRequestURI();
 
-            if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+            if ("GET".equalsIgnoreCase(exchange.getRequestMethod()) && url.getPath().equals("/impresoras")) {
                 statusCode = 200;
                 response = Map.of("Impresoras", Printescpos.listaImpresorasDisponibles());
                 sendResponse(exchange, response, statusCode);
+                return;
             }
 
             // 1. Verificar método (solo aceptamos POST)
@@ -94,11 +96,12 @@ public class PrintHandler implements HttpHandler {
             LOGGER.log(Level.INFO, "Enviando {0} bytes a la impresora: {1} ({2}:{3})",
                     new Object[]{printData.length, config.getNombre(), config.getIp(), config.getPuerto()});
 
-            sendToPrinter(config, printData);
+            //sendToPrinter(config, printData);
+            Printescpos.printTcpIp(config);
 
             // 6. Enviar respuesta exitosa
             message = "Trabajo enviado a la impresora '" + printerName + "' exitosamente.";
-            response = Map.of("message", message);
+            //response = Map.of("message", message);
             statusCode = 200; // OK
             LOGGER.info(message);
 
