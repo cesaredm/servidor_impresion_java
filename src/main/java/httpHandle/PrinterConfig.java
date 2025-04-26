@@ -14,11 +14,13 @@ public class PrinterConfig {
     private final String nombre;
     private final String ip;
     private final int puerto;
+    private final int copias;
 
-    public PrinterConfig(String nombre, String ip, int puerto) {
+    public PrinterConfig(String nombre, String ip, int puerto, int copias) {
         this.nombre = nombre;
         this.ip = ip;
         this.puerto = puerto;
+        this.copias = copias;
     }
 
     public String getNombre() {
@@ -32,6 +34,11 @@ public class PrinterConfig {
     public int getPuerto() {
         return puerto;
     }
+
+    public int getCopias() {
+        return copias;
+    }
+    
 
     @Override
     public String toString() {

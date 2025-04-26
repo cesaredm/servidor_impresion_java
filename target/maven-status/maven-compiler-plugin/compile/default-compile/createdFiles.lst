@@ -1,4 +1,9 @@
+entities\Tienda.class
 com\cdsoft\printserver\PrintServer.class
-httpHandle\Printescpos.class
+entities\Factura.class
 httpHandle\PrintHandler.class
 httpHandle\PrinterConfig.class
+entities\Detalles.class
+httpHandle\Printescpos.class
+entities\DatosGenerales.class
+entities\Totales.class

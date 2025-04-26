@@ -7,6 +7,7 @@ package httpHandle;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import entities.Factura;
 import java.io.*;
 import java.net.Socket;
 import java.net.URI;
@@ -82,22 +83,34 @@ public class PrintHandler implements HttpHandler {
             // 4. Leer los datos a imprimir del cuerpo de la petición
             // Asumimos que el cuerpo es el texto/comandos a imprimir directamente
             InputStream requestBody = exchange.getRequestBody();
+            InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
+            Factura factura = json.fromJson(reader, Factura.class);
             byte[] printData = readAllBytes(requestBody); // Leer todo el cuerpo
 
-            if (printData == null || printData.length == 0) {
+            /*if (printData == null || printData.length == 0) {
                 message = "No se recibieron datos para imprimir.";
                 response = Map.of("message", message);
                 statusCode = 400; // Bad Request
                 sendResponse(exchange, response, statusCode);
                 return;
-            }
-
+            }*/
             // 5. Enviar los datos a la impresora
             LOGGER.log(Level.INFO, "Enviando {0} bytes a la impresora: {1} ({2}:{3})",
                     new Object[]{printData.length, config.getNombre(), config.getIp(), config.getPuerto()});
 
             //sendToPrinter(config, printData);
-            Printescpos.printTcpIp(config);
+            //Printescpos.printTcpIp(config, printData);
+            for (int i = 0; i < config.getCopias();i++){
+                if (i == 0) {
+                    Printescpos.printTcpIp(config, factura, false);
+                } else {
+                    Printescpos.printTcpIp(config, factura, true);
+                }
+            }
+            
+            if(config.getCopias() == 0){
+                Printescpos.printTcpIp(config, factura, false);
+            }
 
             // 6. Enviar respuesta exitosa
             message = "Trabajo enviado a la impresora '" + printerName + "' exitosamente.";

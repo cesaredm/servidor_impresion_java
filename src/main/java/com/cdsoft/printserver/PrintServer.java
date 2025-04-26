@@ -86,11 +86,12 @@ public class PrintServer {
             Map<String, String> properties = entry.getValue();
             String ip = properties.get("ip");
             String portStr = properties.get("port");
+            String copias = properties.get("copias");
 
             if (ip != null && !ip.isEmpty() && portStr != null && !portStr.isEmpty()) {
                 try {
                     int port = Integer.parseInt(portStr);
-                    PrinterConfig config = new PrinterConfig(name, ip, port);
+                    PrinterConfig config = new PrinterConfig(name, ip, port, Integer.parseInt(copias));
                     printers.put(name, config);
                     LOGGER.log(Level.INFO, "Impresora cargada: {0}", config.toString());
                 } catch (NumberFormatException e) {

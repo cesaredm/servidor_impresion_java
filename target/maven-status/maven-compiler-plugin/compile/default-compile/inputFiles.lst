@@ -1,4 +1,9 @@
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\com\cdsoft\printserver\PrintServer.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\DatosGenerales.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\Detalles.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\Factura.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\Tienda.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\Totales.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\httpHandle\PrinterConfig.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\httpHandle\Printescpos.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\httpHandle\PrintHandler.java
