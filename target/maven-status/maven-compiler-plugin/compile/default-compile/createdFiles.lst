@@ -1,6 +1,8 @@
 entities\Tienda.class
 com\cdsoft\printserver\PrintServer.class
 entities\Factura.class
+samplesCommon\SamplesCommon.class
+samplesCommon\SamplesCommon$sampleImages.class
 httpHandle\PrintHandler.class
 httpHandle\PrinterConfig.class
 entities\Detalles.class

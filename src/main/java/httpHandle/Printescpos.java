@@ -5,9 +5,11 @@ import com.github.anastaciocintra.escpos.EscPosConst;
 import com.github.anastaciocintra.escpos.PrintModeStyle;
 import com.github.anastaciocintra.escpos.image.BitImageWrapper;
 import com.github.anastaciocintra.escpos.image.Bitonal;
+import com.github.anastaciocintra.escpos.image.BitonalOrderedDither;
 import com.github.anastaciocintra.escpos.image.BitonalThreshold;
 import com.github.anastaciocintra.escpos.image.CoffeeImageImpl;
 import com.github.anastaciocintra.escpos.image.EscPosImage;
+import com.github.anastaciocintra.escpos.image.GraphicsImageWrapper;
 import com.github.anastaciocintra.escpos.image.RasterBitImageWrapper;
 import com.github.anastaciocintra.output.PrinterOutputStream;
 import com.github.anastaciocintra.output.TcpIpOutputStream;
@@ -19,6 +21,7 @@ import entities.Totales;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
@@ -29,6 +32,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import samplesCommon.SamplesCommon;
 
 /**
  *
@@ -77,7 +81,7 @@ public class Printescpos {
         return " ".repeat(espacios);
     }
 
-    public static byte[] obtenerImagenDeUrl(String urlImagen) throws IOException {
+    public static BufferedImage obtenerImagenDeUrl(String urlImagen) throws IOException {
         //1738198497071-CDsoft.png
         URL url = new URL(urlImagen);
         HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
@@ -88,16 +92,22 @@ public class Printescpos {
 
             int codigoRespuesta = conexion.getResponseCode();
             if (codigoRespuesta == HttpURLConnection.HTTP_OK) {
-                InputStream inputStream = conexion.getInputStream();
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                System.out.println(codigoRespuesta);
+                System.out.println(conexion.getContentType());
+                
+                /*InputStream inputStream = conexion.getInputStream();
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();*/
 
-                byte[] buffer = new byte[4096];
+                InputStream inputStream = conexion.getInputStream();
+                return ImageIO.read(inputStream);
+
+                /*byte[] buffer = new byte[4096];
                 int bytesRead;
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
                     outputStream.write(buffer, 0, bytesRead);
                 }
 
-                return outputStream.toByteArray();
+                return outputStream.toByteArray();*/
             } else {
                 throw new IOException("Error al obtener la imagen. Código de respuesta: " + codigoRespuesta);
             }
@@ -139,27 +149,64 @@ public class Printescpos {
             return "Error en la impresion";
         }
     }
+    
+    public static void downloadImage(String imageUrl, String outputFilePath) throws IOException {
+        // Crear el objeto URL a partir de la URL de la imagen
+        URL url = new URL(imageUrl);
+        
+        // Descargar la imagen desde la URL
+        BufferedImage image = ImageIO.read(url);
+        
+        // Verificar si la imagen fue descargada correctamente
+        if (image != null) {
+            // Crear un archivo en la ruta especificada y guardar la imagen
+            File outputFile = new File(outputFilePath);
+            // Guardar la imagen como archivo PNG (puedes cambiar el formato si lo deseas)
+            ImageIO.write(image, "PNG", outputFile);
+            System.out.println("Imagen guardada exitosamente en: " + outputFile.getAbsolutePath());
+        } else {
+            System.err.println("No se pudo descargar la imagen desde la URL.");
+        }
+    }
 
     public static String printTcpIp(PrinterConfig printer, Factura factura, boolean copia) {
+        /*// URL de la imagen que deseas descargar
+            //String imageUrl = "https://example.com/image.png";
+            String imageUrl = "https://api.cdsoft.net/uploads/logos/1738198497071-CDsoft.png";
+            // Ruta donde deseas guardar la imagen en tu equipo local
+            String outputFilePath = "E:/cesar/Images/imagen_descargada.png";
+            
+        try {
+            // Llamada al método para descargar y guardar la imagen
+            downloadImage(imageUrl, outputFilePath);
+        } catch (IOException ex) {
+            Logger.getLogger(Printescpos.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return "";*/
         List<Detalles> detalles = factura.getDetalles();
         Tienda tienda = factura.getTienda();
         DatosGenerales datosGenerales = factura.getDatosGenerales();
         Totales totales = factura.getTotales();
         try (TcpIpOutputStream outputStream = new TcpIpOutputStream(printer.getIp(), printer.getPuerto())) {
             print = new EscPos(outputStream);
+            
+            String urlImagen = "https://api.cdsoft.net/uploads/logos/1745804389513-CDsoft.png";
 
-            /*String urlLogo = "https://api.cdsoft.net/uploads/logos/1738198497071-CDsoft.png"; // Reemplaza con la URL real
-            byte[] logoBytes = obtenerImagenDeUrl(urlLogo);
-            // Convertir los bytes de la imagen a BufferedImage
-            InputStream in = new ByteArrayInputStream(logoBytes);
-            BufferedImage bufferedImage = ImageIO.read(in);
+            BufferedImage bufferedImage = obtenerImagenDeUrl(urlImagen);
+            // Crear algoritmo bitonal
             Bitonal algorithm = new BitonalThreshold(127);
+            algorithm = new BitonalOrderedDither(3,3,120,170);
+
+            // Crear EscPosImage a partir de la imagen descargada
             EscPosImage escposImage = new EscPosImage(new CoffeeImageImpl(bufferedImage), algorithm);
-            // Procesar la imagen para escpos (ejemplo básico)
-            //RasterBitImageWrapper imageWrapper = new RasterBitImageWrapper();
-            // this wrapper uses esc/pos sequence: "ESC '*'"
-            BitImageWrapper imageWrapper = new BitImageWrapper();
-            print.write(imageWrapper, escposImage);*/
+
+            // Configurar el wrapper de imagen
+            //BitImageWrapper imageWrapper = new BitImageWrapper().setJustification(EscPosConst.Justification.Center);
+            RasterBitImageWrapper imageWrapper = new RasterBitImageWrapper().setJustification(EscPosConst.Justification.Center);
+            imageWrapper.setRasterBitImageMode(RasterBitImageWrapper.RasterBitImageMode.Normal_Default);
+            
+            print.write(imageWrapper, escposImage).feed(1);
+            
             print.writeLF(title, tienda.getNombre());
             print.feed(1);
             print.write(campo, "N. ruc: ");
@@ -254,6 +301,5 @@ public class Printescpos {
                 Logger.getLogger(Printescpos.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
     }
 }
