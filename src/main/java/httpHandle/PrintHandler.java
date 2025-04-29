@@ -35,7 +35,7 @@ public class PrintHandler implements HttpHandler {
         //String response = "Error interno del servidor.";
         int statusCode = 500;
         String message = "";
-        Map<String, Object> response;
+        Map<String, Object> response; // para crear la respuesta
 
         try {
             URI url = exchange.getRequestURI();
@@ -56,67 +56,59 @@ public class PrintHandler implements HttpHandler {
                 sendResponse(exchange, response, statusCode);
                 return;
             }
+            if ("POST".equalsIgnoreCase(exchange.getRequestMethod()) && url.getPath().startsWith("/print")) {
+                // 2. Extraer nombre de la impresora de la URL
+                URI requestURI = exchange.getRequestURI();
+                String path = requestURI.getPath(); // Debería ser /print/nombreImpresora
+                String printerName = extractPrinterName(path);
 
-            // 2. Extraer nombre de la impresora de la URL
-            URI requestURI = exchange.getRequestURI();
-            String path = requestURI.getPath(); // Debería ser /print/nombreImpresora
-            String printerName = extractPrinterName(path);
-
-            if (printerName == null || printerName.isEmpty()) {
-                message = "Nombre de impresora no especificado en la URL. Use /print/{nombreImpresora}";
-                response = Map.of("message", message);
-                statusCode = 400; // Bad Request
-                sendResponse(exchange, response, statusCode);
-                return;
-            }
-
-            // 3. Buscar la configuración de la impresora
-            PrinterConfig config = printers.get(printerName);
-            if (config == null) {
-                message = "Impresora '" + printerName + "' no encontrada en la configuración.";
-                response = Map.of("message", message);
-                statusCode = 404; // Not Found
-                sendResponse(exchange, response, statusCode);
-                return;
-            }
-
-            // 4. Leer los datos a imprimir del cuerpo de la petición
-            // Asumimos que el cuerpo es el texto/comandos a imprimir directamente
-            InputStream requestBody = exchange.getRequestBody();
-            InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
-            Factura factura = json.fromJson(reader, Factura.class);
-            byte[] printData = readAllBytes(requestBody); // Leer todo el cuerpo
-
-            /*if (printData == null || printData.length == 0) {
-                message = "No se recibieron datos para imprimir.";
-                response = Map.of("message", message);
-                statusCode = 400; // Bad Request
-                sendResponse(exchange, response, statusCode);
-                return;
-            }*/
-            // 5. Enviar los datos a la impresora
-            LOGGER.log(Level.INFO, "Enviando {0} bytes a la impresora: {1} ({2}:{3})",
-                    new Object[]{printData.length, config.getNombre(), config.getIp(), config.getPuerto()});
-
-            //sendToPrinter(config, printData);
-            //Printescpos.printTcpIp(config, printData);
-            for (int i = 0; i < config.getCopias();i++){
-                if (i == 0) {
-                    Printescpos.printTcpIp(config, factura, false);
-                } else {
-                    Printescpos.printTcpIp(config, factura, true);
+                if (printerName == null || printerName.isEmpty()) {
+                    message = "Nombre de impresora no especificado en la URL. Use /print/{nombreImpresora}";
+                    response = Map.of("message", message);
+                    statusCode = 400; // Bad Request
+                    sendResponse(exchange, response, statusCode);
+                    return;
                 }
-            }
-            
-            if(config.getCopias() == 0){
-                Printescpos.printTcpIp(config, factura, false);
-            }
 
-            // 6. Enviar respuesta exitosa
-            message = "Trabajo enviado a la impresora '" + printerName + "' exitosamente.";
-            //response = Map.of("message", message);
-            statusCode = 200; // OK
-            LOGGER.info(message);
+                // 3. Buscar la configuración de la impresora
+                PrinterConfig config = printers.get(printerName);
+                if (config == null) {
+                    message = "Impresora '" + printerName + "' no encontrada en la configuración.";
+                    response = Map.of("message", message);
+                    statusCode = 404; // Not Found
+                    sendResponse(exchange, response, statusCode);
+                    return;
+                }
+
+                // 4. Leer los datos a imprimir del cuerpo de la petición
+                InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
+                //creamos una una clase de tipo Factura a partir de el json recibido
+                Factura factura = json.fromJson(reader, Factura.class);
+                // 5. Enviar los datos a la impresora
+                LOGGER.log(Level.INFO, "Enviando datos a la impresora: {1} ({2}:{3})", new Object[]{config.getNombre(), config.getIp(), config.getPuerto()});
+
+                // 6. logica de imprimir la factura, con las copias o no
+                for (int i = 0; i < config.getCopias(); i++) {
+                    if (i == 0) {
+                        Printescpos.printTcpIp(config, factura, false);
+                    } else {
+                        Printescpos.printTcpIp(config, factura, true);
+                    }
+                }
+
+                if (config.getCopias() == 0) {
+                    Printescpos.printTcpIp(config, factura, false);
+                }
+
+                // 6. Enviar respuesta exitosa
+                message = "Trabajo enviado a la impresora '" + printerName + "' exitosamente.";
+                //response = Map.of("message", message);
+                statusCode = 200; // OK
+                LOGGER.info(message);
+                response = Map.of("message", message);
+                sendResponse(exchange, response, statusCode);
+                return;
+            }
 
         } catch (IOException e) {
             message = "Error de E/S al procesar la impresión para '"

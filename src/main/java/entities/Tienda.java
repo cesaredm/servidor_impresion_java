@@ -14,6 +14,7 @@ public class Tienda {
     private String telefono;
     private String nota;
     private String nombre;
+    private String logo;
 
     public String getRut() {
         return rut;
@@ -54,6 +55,13 @@ public class Tienda {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-    
+
+    public String getLogo() {
+        return logo;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
+    }
     
 }
