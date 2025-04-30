@@ -4,11 +4,6 @@
 
 package com.cdsoft.printserver;
 import java.util.logging.Level;
-
-/**
- *
- * @author cesar
- */
 import com.sun.net.httpserver.HttpServer;
 import httpHandle.PrintHandler;
 import httpHandle.PrinterConfig;
@@ -19,27 +14,50 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+import org.apache.commons.daemon.Daemon;
+import org.apache.commons.daemon.DaemonContext;
+import org.apache.commons.daemon.DaemonInitException;
 
-/**
- *
- * @author cesar
- */
-
-public class PrintServer {
+public class PrintServer implements Daemon {
 
     private static final Logger LOGGER = Logger.getLogger(PrintServer.class.getName());
     private static final String CONFIG_FILE = "C:\\Users\\cesar\\Documents\\printers.properties";
-    private static final int SERVER_PORT = 8088; // Puerto en el que escuchará el servidor
+    private static final int SERVER_PORT = 8088;
     private static final Map<String, PrinterConfig> printers = new HashMap<>();
+    private static HttpServer server;
+    private static ExecutorService executor;
 
-    public static void main(String[] args) {
+    @Override
+    public void init(DaemonContext context) throws DaemonInitException {
         try {
             loadPrinterConfiguration();
-            startServer();
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error al iniciar el servidor de impresión.", e);
+            throw new DaemonInitException("Error al inicializar el servidor", e);
+        }
+    }
+
+    @Override
+    public void start() throws Exception {
+        startServer();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        if (server != null) {
+            //server.stop(0);
+            stopServer();
+            LOGGER.info("Servidor detenido");
+        }
+    }
+
+    @Override
+    public void destroy() {
+        if (server != null) {
+            server.stop(0);
         }
     }
 
@@ -109,27 +127,57 @@ public class PrintServer {
 
     public static void startServer() throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(SERVER_PORT), 0);
-
-        // Crear contexto para las peticiones de impresión
-        // La URL será http://<IP_SERVIDOR>:<SERVER_PORT>/print/{nombreImpresora}
         server.createContext("/print", new PrintHandler(printers));
         server.createContext("/impresoras", new PrintHandler(printers));
-
-        // Usar un pool de hilos para manejar peticiones concurrentes
-        server.setExecutor(Executors.newCachedThreadPool());
-
+        executor = Executors.newCachedThreadPool();
+        //server.setExecutor(Executors.newCachedThreadPool());
+        server.setExecutor(executor);
         server.start();
         LOGGER.log(Level.INFO, "Servidor de impresión iniciado en el puerto {0}", SERVER_PORT);
         LOGGER.log(Level.INFO, "Esperando peticiones en http://localhost:{0}/print/{{nombre_impresora}}", SERVER_PORT);
+        
+        /*Runtime.getRuntime().addShutdownHook(new Thread(()->{
+            try {
+                stopServer();
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error al detener el servidor", e);
+            }
+        }));*/
+    }
+    
+    public static void stopServer(){
+        if(server != null){
+            LOGGER.log(Level.INFO, "Deteniendo el servidor de impresion");
+            
+            server.stop(0);
+            
+            if(executor != null && !executor.isShutdown()){
+                executor.shutdown();
+                try {
+                    if(!executor.awaitTermination(15, TimeUnit.SECONDS)){
+                        executor.shutdown();
+                        if(!executor.awaitTermination(5, TimeUnit.SECONDS)){
+                            LOGGER.log(Level.WARNING, "El pool de hilos no puede ser detenido completamente");
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    executor.shutdown();
+                    Thread.currentThread().interrupt();
+                    LOGGER.log(Level.WARNING, "Interrupcion durante la detencion del servidor", e);
+                }
+            }
+            LOGGER.log(Level.INFO, "Servidor de impresion detenido con exito.");
+        }
     }
 
-    // Opcional: Método para recargar la configuración sin reiniciar el servidor
-    public static void reloadConfiguration() {
-        LOGGER.info("Recargando configuración de impresoras...");
+    // Método main para pruebas manuales
+    public static void main(String[] args) {
+        PrintServer serverPrint = new PrintServer();
         try {
-            loadPrinterConfiguration();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error al recargar la configuración.", e);
+            serverPrint.init(null);
+            serverPrint.start();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error al iniciar el servidor de impresión.", e);
         }
     }
 }
