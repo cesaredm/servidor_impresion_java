@@ -1,8 +1,8 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  */
-
 package com.cdsoft.printserver;
+
 import java.util.logging.Level;
 import com.sun.net.httpserver.HttpServer;
 import httpHandle.PrintHandler;
@@ -25,7 +25,8 @@ import org.apache.commons.daemon.DaemonInitException;
 public class PrintServer implements Daemon {
 
     private static final Logger LOGGER = Logger.getLogger(PrintServer.class.getName());
-    private static final String CONFIG_FILE = "C:\\Users\\cesar\\Documents\\printers.properties";
+    private static final String USER_PATH = System.getProperty("user.home");
+    private static final String CONFIG_FILE = "C:\\impresorasConfig\\printers.properties";
     private static final int SERVER_PORT = 8088;
     private static final Map<String, PrinterConfig> printers = new HashMap<>();
     private static HttpServer server;
@@ -91,9 +92,9 @@ public class PrintServer implements Daemon {
                     computeIfAbsent busca "cocina". Esta vez sí la encuentra.
                     Devuelve el mapa interno que ya existe (el que ahora contiene {"ip": "192.168.1.100"}).
                     La llamada encadenada .put("port", "9100") se ejecuta sobre ese mapa existente. Ahora el mapa interno para "cocina" contiene {"ip": "192.168.1.100", "port": "9100"}.
-                */
+                 */
                 printerPropsByName.computeIfAbsent(printerName, k -> new HashMap<>())
-                                 .put(propName, props.getProperty(key));
+                        .put(propName, props.getProperty(key));
             }
         }
 
@@ -116,7 +117,7 @@ public class PrintServer implements Daemon {
                     LOGGER.log(Level.WARNING, "Puerto inválido para la impresora {0}: {1}", new Object[]{name, portStr});
                 }
             } else {
-                 LOGGER.log(Level.WARNING, "Configuración incompleta para la impresora: {0}", name);
+                LOGGER.log(Level.WARNING, "Configuración incompleta para la impresora: {0}", name);
             }
         }
 
@@ -135,38 +136,41 @@ public class PrintServer implements Daemon {
         server.start();
         LOGGER.log(Level.INFO, "Servidor de impresión iniciado en el puerto {0}", SERVER_PORT);
         LOGGER.log(Level.INFO, "Esperando peticiones en http://localhost:{0}/print/{{nombre_impresora}}", SERVER_PORT);
-        
-        /*Runtime.getRuntime().addShutdownHook(new Thread(()->{
-            try {
-                stopServer();
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Error al detener el servidor", e);
-            }
-        }));*/
     }
-    
-    public static void stopServer(){
-        if(server != null){
-            LOGGER.log(Level.INFO, "Deteniendo el servidor de impresion");
-            
-            server.stop(0);
-            
-            if(executor != null && !executor.isShutdown()){
-                executor.shutdown();
-                try {
-                    if(!executor.awaitTermination(15, TimeUnit.SECONDS)){
-                        executor.shutdown();
-                        if(!executor.awaitTermination(5, TimeUnit.SECONDS)){
-                            LOGGER.log(Level.WARNING, "El pool de hilos no puede ser detenido completamente");
+
+    public static void stopServer() {
+        if (server != null) {
+            LOGGER.log(Level.INFO, "Iniciando la detención del servidor de impresión");
+
+            try {
+                // Detener el servidor
+                server.stop(0);
+                LOGGER.log(Level.INFO, "Servidor detenido correctamente.");
+
+                // Apagar el executor si está activo
+                if (executor != null && !executor.isShutdown()) {
+                    LOGGER.log(Level.INFO, "Cerrando el pool de hilos...");
+                    executor.shutdown();
+
+                    if (!executor.awaitTermination(15, TimeUnit.SECONDS)) {
+                        LOGGER.log(Level.WARNING, "Fuerza el apagado del pool de hilos...");
+                        executor.shutdownNow();
+
+                        if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                            LOGGER.log(Level.SEVERE, "No se pudo detener el pool de hilos completamente.");
                         }
                     }
-                } catch (InterruptedException e) {
-                    executor.shutdown();
-                    Thread.currentThread().interrupt();
-                    LOGGER.log(Level.WARNING, "Interrupcion durante la detencion del servidor", e);
                 }
+
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error al detener el servidor de impresión", e);
+            } finally {
+                // Salir de la JVM después de cerrar todo
+                LOGGER.log(Level.INFO, "Detención completa. Saliendo del sistema...");
+                System.exit(0);
             }
-            LOGGER.log(Level.INFO, "Servidor de impresion detenido con exito.");
+        } else {
+            LOGGER.log(Level.WARNING, "El servidor ya está detenido o no se inició correctamente.");
         }
     }
 
@@ -176,6 +180,13 @@ public class PrintServer implements Daemon {
         try {
             serverPrint.init(null);
             serverPrint.start();
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    stopServer();
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, "Error al detener el servidor", e);
+                }
+            }));
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error al iniciar el servidor de impresión.", e);
         }

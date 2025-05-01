@@ -70,7 +70,17 @@ jlink --module-path "C:\Program Files\Amazon Corretto\jdk23.0.2_7\jmods" --add-m
 esto creara un carpeta runtime en el directorio actual com mi jvm custom, para el funcionamiento correcto de mi app.
 > Ojo esto lo realizo para que esto sea liviano y balla en mi instalador, pero bien puedes instalar el JRE por aparte sin ningun problema y no haces este procedimeitno.
 
-#### JRE de OpenJdk
+#### JRE-JDK de OpenJdk
 - Amazon Corretto
 - Zulu
 - AdoptOpenJDK
+
+### Solo JRE para instalacion en cliente, para que sea mas liviano
+- Bellsoft - [https://bell-sw.com/pages/downloads/?version=java-23&os=windows](https://bell-sw.com/pages/downloads/)
+
+### configuracion de firewall
+esto para que el firewall permita entradas a este puerto del servidor, en caso de ser necesario
+se Incluyo en el script de instalacion.
+```cmd
+netsh advfirewall firewall add rule name="Allow Port 8088" dir=in action=allow protocol=TCP localport=8088
+```
