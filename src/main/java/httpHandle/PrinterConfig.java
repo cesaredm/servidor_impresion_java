@@ -13,14 +13,16 @@ public class PrinterConfig {
 
     private final String nombre;
     private final String ip;
+    private final String logo;
     private final int puerto;
     private final int copias;
 
-    public PrinterConfig(String nombre, String ip, int puerto, int copias) {
+    public PrinterConfig(String nombre, String ip, String logo, int puerto, int copias) {
         this.nombre = nombre;
         this.ip = ip;
         this.puerto = puerto;
         this.copias = copias;
+        this.logo = logo;
     }
 
     public String getNombre() {
@@ -37,6 +39,10 @@ public class PrinterConfig {
 
     public int getCopias() {
         return copias;
+    }
+
+    public String getLogo() {
+        return logo;
     }
     
 

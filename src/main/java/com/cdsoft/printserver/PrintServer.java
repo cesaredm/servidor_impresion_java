@@ -5,6 +5,7 @@ package com.cdsoft.printserver;
 
 import java.util.logging.Level;
 import com.sun.net.httpserver.HttpServer;
+import httpHandle.ConfigHandler;
 import httpHandle.PrintHandler;
 import httpHandle.PrinterConfig;
 import java.io.FileInputStream;
@@ -106,11 +107,12 @@ public class PrintServer implements Daemon {
             String ip = properties.get("ip");
             String portStr = properties.get("port");
             String copias = properties.get("copias");
+            String logo = properties.get("logo");
 
             if (ip != null && !ip.isEmpty() && portStr != null && !portStr.isEmpty()) {
                 try {
                     int port = Integer.parseInt(portStr);
-                    PrinterConfig config = new PrinterConfig(name, ip, port, Integer.parseInt(copias));
+                    PrinterConfig config = new PrinterConfig(name, ip, logo, port, Integer.parseInt(copias));
                     printers.put(name, config);
                     LOGGER.log(Level.INFO, "Impresora cargada: {0}", config.toString());
                 } catch (NumberFormatException e) {
@@ -130,6 +132,7 @@ public class PrintServer implements Daemon {
         HttpServer server = HttpServer.create(new InetSocketAddress(SERVER_PORT), 0);
         server.createContext("/print", new PrintHandler(printers));
         server.createContext("/impresoras", new PrintHandler(printers));
+        server.createContext("/recargar", new ConfigHandler());
         executor = Executors.newCachedThreadPool();
         //server.setExecutor(Executors.newCachedThreadPool());
         server.setExecutor(executor);

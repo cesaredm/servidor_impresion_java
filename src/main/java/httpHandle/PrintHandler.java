@@ -97,9 +97,9 @@ public class PrintHandler implements HttpHandler {
                 }
 
                 if (config.getCopias() == 0) {
-                    Printescpos.printTcpIp(config, factura, false);
+                   Printescpos.printTcpIp(config, factura, false);
                 }
-
+                
                 // 6. Enviar respuesta exitosa
                 message = "Trabajo enviado a la impresora '" + printerName + "' exitosamente.";
                 //response = Map.of("message", message);

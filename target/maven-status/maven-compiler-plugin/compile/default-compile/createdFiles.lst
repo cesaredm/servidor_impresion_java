@@ -8,4 +8,5 @@ httpHandle\PrinterConfig.class
 entities\Detalles.class
 httpHandle\Printescpos.class
 entities\DatosGenerales.class
+httpHandle\ConfigHandler.class
 entities\Totales.class

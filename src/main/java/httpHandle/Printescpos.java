@@ -3,6 +3,7 @@ package httpHandle;
 import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.EscPosConst;
 import com.github.anastaciocintra.escpos.PrintModeStyle;
+import com.github.anastaciocintra.escpos.Style;
 import com.github.anastaciocintra.escpos.image.BitImageWrapper;
 import com.github.anastaciocintra.escpos.image.Bitonal;
 import com.github.anastaciocintra.escpos.image.BitonalOrderedDither;
@@ -31,6 +32,10 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import javax.imageio.stream.FileImageInputStream;
 
 /**
  *
@@ -44,7 +49,7 @@ public class Printescpos {
     final static int anchoTitulos = "Cant".length() + "Precio".length() + "Total".length();
     final static int papelAncho58mm = 38;
     private final static DecimalFormat formatDecimal = new DecimalFormat("###,###,###,##0.00");
-    static PrintModeStyle title = new PrintModeStyle().setFontSize(true, true).setJustification(EscPosConst.Justification.Center);
+    static Style title = new Style().setJustification(EscPosConst.Justification.Center).setBold(true);
     static PrintModeStyle campo = new PrintModeStyle().setBold(true);
     static PrintModeStyle bold = new PrintModeStyle().setBold(true);
     static PrintModeStyle nota = new PrintModeStyle().setBold(true).setJustification(EscPosConst.Justification.Center);
@@ -110,6 +115,15 @@ public class Printescpos {
             }
         } finally {
             conexion.disconnect();
+        }
+    }
+    
+    public static BufferedImage obtenerImagenLocal(String urlImage) throws IOException{
+        try {
+            BufferedImage image = ImageIO.read(new File("C:/impresorasConfig/"+urlImage));
+            return image;
+        }finally{
+            
         }
     }
 
@@ -178,7 +192,22 @@ public class Printescpos {
             y = endY;
         }
     }
-
+    
+    public static String texto(String value){
+        /*return value.replace("á", "\u00E1") // Código Unicode para "á"
+             .replace("é", "\u00E9") // Código Unicode para "é"
+             .replace("í", "\u00ED") // Código Unicode para "í"
+             .replace("ó", "\u00F3") // Código Unicode para "ó"
+             .replace("ú", "\u00FA") // Código Unicode para "ú"
+             .replace("ñ", "\u00F1"); // Código Unicode para "ñ"*/
+        return value.replace("á", "a") // Código Unicode para "á"
+             .replace("é", "e") // Código Unicode para "é"
+             .replace("í", "i") // Código Unicode para "í"
+             .replace("ó", "o") // Código Unicode para "ó"
+             .replace("ú", "u") // Código Unicode para "ú"
+             .replace("ñ", "n"); // Código Unicode para "ñ"
+    }
+    
     /*
         funcion para impresion en red
         @Params printer = Objeto tipo PrinterConfig, factura = objeto tipo Factura , copia= si imprimira copia o no
@@ -192,13 +221,23 @@ public class Printescpos {
         try (TcpIpOutputStream outputStream = new TcpIpOutputStream(printer.getIp(), printer.getPuerto())) {
             // instancia de EscPos para enviar los comandos escpos
             print = new EscPos(outputStream);
-
+            
+            // para que acepte los acentos
+            //print.setCharacterCodeTable(EscPos.CharacterCodeTable.CP437_USA_Standard_Europe);
+            //print.setPrinterCharacterTable(2);
+            //print.setCharsetName("UTF-8");
+            
             //String urlImagen = "https://api.cdsoft.net/uploads/logos/1745804389513-CDsoft.png";
             String urlImagen = "https://api.cdsoft.net/uploads/logos/" + tienda.getLogo();
-
-            BufferedImage bufferedImage = obtenerImagenDeUrl(urlImagen);
+            BufferedImage bufferedImage;
+            if(printer.getLogo() != null){
+                bufferedImage = obtenerImagenLocal(printer.getLogo());
+            }else{
+                bufferedImage = obtenerImagenDeUrl(urlImagen);
+            }
+            
             //por ejemplo, 384 píxeles para una impresora de 58 mm y 576 píxeles para una de 80 mm
-            BufferedImage resizeImage = resizeImage(bufferedImage, 350); //tamano de ancho en pixeles
+            BufferedImage resizeImage = resizeImage(bufferedImage, 290); //tamano de ancho en pixeles
             //sendImageInChunks(print, resizeImage, 24);
             // Crear algoritmo bitonal
             //Bitonal algorithm = new BitonalThreshold(127);
@@ -221,9 +260,9 @@ public class Printescpos {
             print.feed(1);
             print.write(campo, "N. ruc: ");
             print.writeLF(tienda.getRut());
-            print.write(campo, "Dirección: ");
+            print.write(campo,texto("Dirección: "));
             print.writeLF(tienda.getDireccion());
-            print.write(campo, "Teléfono: ");
+            print.write(campo, texto("Teléfono: "));
             print.writeLF(tienda.getTelefono());
             print.write(campo, "Fecha: ");
             print.writeLF(datosGenerales.getFecha());
@@ -234,7 +273,7 @@ public class Printescpos {
             print.write(campo, "N. factura: #");
             print.writeLF(String.valueOf(datosGenerales.getFactura()));
             print.write(campo, "Comprador: ");
-            print.writeLF(datosGenerales.getComprador());
+            print.writeLF(texto(datosGenerales.getComprador()));
             //print.writeLF(bold, "------------------------------------------------");
             print.writeLF("*".repeat(papelAncho));
             print.write(bold, "Cant");
@@ -245,7 +284,7 @@ public class Printescpos {
             print.writeLF("*".repeat(papelAncho));
             //print.writeLF(bold, "------------------------------------------------");
             for (Detalles detalle : detalles) {
-                print.writeLF(detalle.getDescripcion());
+                print.writeLF(texto(detalle.getDescripcion()));
                 print.write(formatDecimal.format(detalle.getCantidadProducto()));
                 print.write(" x ");
                 //print.write(espacioTresColumnas(papelAncho, espaciadoDetalles));
@@ -297,12 +336,12 @@ public class Printescpos {
             }
             print.feed(4);
             print.cut(EscPos.CutMode.FULL);
-            return "Exito en la impresion";
+            return "Exito";
         } catch (ConnectException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, "No se pudo conectar a la impresra, revise la configuracion " + ex);
             return "Fallo la impresion";
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, "Error en la impresion " + ex);
             return "Error en la impresion";
         } finally {
             try {
