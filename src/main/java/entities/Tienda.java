@@ -12,7 +12,7 @@ public class Tienda {
     private String rut;
     private String direccion;
     private String telefono;
-    private String nota;
+    private String anotaciones;
     private String nombre;
     private String logo;
 
@@ -41,11 +41,11 @@ public class Tienda {
     }
 
     public String getNota() {
-        return nota;
+        return anotaciones;
     }
 
     public void setNota(String nota) {
-        this.nota = nota;
+        this.anotaciones = nota;
     }
 
     public String getNombre() {

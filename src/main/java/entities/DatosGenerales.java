@@ -14,6 +14,7 @@ public class DatosGenerales {
     private int empleado;
     private int factura;
     private String comprador;
+    private String cliente;
 
     public String getFecha() {
         return fecha;
@@ -53,6 +54,14 @@ public class DatosGenerales {
 
     public void setComprador(String comprador) {
         this.comprador = comprador;
+    }
+
+    public String getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(String cliente) {
+        this.cliente = cliente;
     }
     
     

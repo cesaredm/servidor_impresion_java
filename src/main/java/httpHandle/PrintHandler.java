@@ -39,6 +39,18 @@ public class PrintHandler implements HttpHandler {
 
         try {
             URI url = exchange.getRequestURI();
+            
+             // Configurar los encabezados CORS
+            exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Credentials", "true");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+            // Manejar las solicitudes OPTIONS (preflight)
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                exchange.sendResponseHeaders(204, -1); // Respuesta vacía para OPTIONS
+                return;
+            }
 
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod()) && url.getPath().equals("/impresoras")) {
                 statusCode = 200;
@@ -147,37 +159,6 @@ public class PrintHandler implements HttpHandler {
         }
         buffer.flush();
         return buffer.toByteArray();
-    }
-
-    private void sendToPrinter(PrinterConfig config, byte[] data) throws IOException {
-        // Usamos try-with-resources para asegurar que el socket y los streams se cierren
-        try (Socket socket = new Socket(config.getIp(), config.getPuerto()); OutputStream out = socket.getOutputStream()) {
-            // Establecer un timeout de conexión y lectura podría ser buena idea
-            socket.setSoTimeout(5000); // 5 segundos de timeout de lectura/escritura
-
-            LOGGER.log(Level.FINE, "Conectado a {0}:{1}", new Object[]{config.getIp(), config.getPuerto()});
-
-            // Enviar los datos directamente. Asume que 'data' ya contiene los comandos ESC/POS
-            // o el texto formateado correctamente con la codificación esperada por la impresora.
-            out.write(data);
-            out.flush(); // Asegurar que todos los datos se envíen
-
-            LOGGER.log(Level.FINE, "Datos enviados correctamente.");
-
-            // CONSIDERACIÓN IMPORTANTE SOBRE ESC/POS:
-            // Muchas impresoras ESC/POS requieren comandos específicos al final,
-            // como un corte de papel (GS V 1) o un avance de línea (LF).
-            // Si tus clientes envían solo el texto, podrías añadir esos comandos aquí:
-            // Ejemplo: Añadir un salto de línea y corte parcial
-            // byte[] LF = new byte[]{0x0A}; // Line Feed
-            // byte[] PARTIAL_CUT = new byte[]{0x1D, 0x56, 0x42, 0x00}; // GS V m=66 n=0
-            // out.write(LF);
-            // out.write(PARTIAL_CUT);
-            // out.flush();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error al conectar o enviar datos a la impresora " + config.getNombre(), e);
-            throw e; // Relanzar para que el handler sepa que hubo un error
-        }
     }
 
     private void sendResponse(HttpExchange exchange, Map<String, Object> response, int statusCode) throws IOException {

@@ -21,6 +21,19 @@ public class ConfigHandler implements HttpHandler{
     public void handle(HttpExchange exchange) throws IOException {
         try {
             URI url = exchange.getRequestURI();
+            
+            // Configurar los encabezados CORS
+            exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Credentials", "true");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+            // Manejar las solicitudes OPTIONS (preflight)
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                exchange.sendResponseHeaders(204, -1); // Respuesta vacía para OPTIONS
+                return;
+            }
+            
             if(!"GET".equalsIgnoreCase(exchange.getRequestMethod()) && url.getPath().equals("/recargar")){
                 response= Map.of("message", "Metodo no permitido solo GET.");
                 sendResponse(exchange, response, 400);

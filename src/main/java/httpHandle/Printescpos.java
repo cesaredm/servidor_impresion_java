@@ -117,13 +117,13 @@ public class Printescpos {
             conexion.disconnect();
         }
     }
-    
-    public static BufferedImage obtenerImagenLocal(String urlImage) throws IOException{
+
+    public static BufferedImage obtenerImagenLocal(String urlImage) throws IOException {
         try {
-            BufferedImage image = ImageIO.read(new File("C:/impresorasConfig/"+urlImage));
+            BufferedImage image = ImageIO.read(new File("C:/impresorasConfig/" + urlImage));
             return image;
-        }finally{
-            
+        } finally {
+
         }
     }
 
@@ -192,8 +192,8 @@ public class Printescpos {
             y = endY;
         }
     }
-    
-    public static String texto(String value){
+
+    public static String texto(String value) {
         /*return value.replace("á", "\u00E1") // Código Unicode para "á"
              .replace("é", "\u00E9") // Código Unicode para "é"
              .replace("í", "\u00ED") // Código Unicode para "í"
@@ -201,13 +201,13 @@ public class Printescpos {
              .replace("ú", "\u00FA") // Código Unicode para "ú"
              .replace("ñ", "\u00F1"); // Código Unicode para "ñ"*/
         return value.replace("á", "a") // Código Unicode para "á"
-             .replace("é", "e") // Código Unicode para "é"
-             .replace("í", "i") // Código Unicode para "í"
-             .replace("ó", "o") // Código Unicode para "ó"
-             .replace("ú", "u") // Código Unicode para "ú"
-             .replace("ñ", "n"); // Código Unicode para "ñ"
+                .replace("é", "e") // Código Unicode para "é"
+                .replace("í", "i") // Código Unicode para "í"
+                .replace("ó", "o") // Código Unicode para "ó"
+                .replace("ú", "u") // Código Unicode para "ú"
+                .replace("ñ", "n"); // Código Unicode para "ñ"
     }
-    
+
     /*
         funcion para impresion en red
         @Params printer = Objeto tipo PrinterConfig, factura = objeto tipo Factura , copia= si imprimira copia o no
@@ -221,21 +221,20 @@ public class Printescpos {
         try (TcpIpOutputStream outputStream = new TcpIpOutputStream(printer.getIp(), printer.getPuerto())) {
             // instancia de EscPos para enviar los comandos escpos
             print = new EscPos(outputStream);
-            
+
             // para que acepte los acentos
             //print.setCharacterCodeTable(EscPos.CharacterCodeTable.CP437_USA_Standard_Europe);
             //print.setPrinterCharacterTable(2);
             //print.setCharsetName("UTF-8");
-            
             //String urlImagen = "https://api.cdsoft.net/uploads/logos/1745804389513-CDsoft.png";
             String urlImagen = "https://api.cdsoft.net/uploads/logos/" + tienda.getLogo();
             BufferedImage bufferedImage;
-            if(printer.getLogo() != null){
+            if (printer.getLogo() != null) {
                 bufferedImage = obtenerImagenLocal(printer.getLogo());
-            }else{
+            } else {
                 bufferedImage = obtenerImagenDeUrl(urlImagen);
             }
-            
+
             //por ejemplo, 384 píxeles para una impresora de 58 mm y 576 píxeles para una de 80 mm
             BufferedImage resizeImage = resizeImage(bufferedImage, 290); //tamano de ancho en pixeles
             //sendImageInChunks(print, resizeImage, 24);
@@ -256,11 +255,19 @@ public class Printescpos {
 
             print.write(imageWrapper, escposImage).feed(1);
 
-            print.writeLF(title, tienda.getNombre());
+            //nombre de la tienda
+            if (tienda.getNombre() != null && !tienda.getNombre().isEmpty()) {
+                print.writeLF(title, tienda.getNombre());
+            }
+
             print.feed(1);
-            print.write(campo, "N. ruc: ");
-            print.writeLF(tienda.getRut());
-            print.write(campo,texto("Dirección: "));
+            // Ruc de la tienda
+            if (tienda.getRut() != null && !tienda.getRut().isEmpty()) {
+                print.write(campo, "N. ruc: ");
+                print.writeLF(tienda.getRut());
+            }
+
+            print.write(campo, texto("Dirección: "));
             print.writeLF(tienda.getDireccion());
             print.write(campo, texto("Teléfono: "));
             print.writeLF(tienda.getTelefono());
@@ -268,6 +275,12 @@ public class Printescpos {
             print.writeLF(datosGenerales.getFecha());
             print.write(campo, "Tipo venta: ");
             print.writeLF(datosGenerales.getTipoVenta());
+            // cliente de credito
+            if (datosGenerales.getCliente() != null && !datosGenerales.getCliente().isEmpty()) {
+                print.write(campo, "Cliente: ");
+                print.writeLF(texto(datosGenerales.getCliente()));
+            }
+
             print.write(campo, "Atendido por : Cajero #");
             print.writeLF(String.valueOf(datosGenerales.getEmpleado()));
             print.write(campo, "N. factura: #");
@@ -318,16 +331,18 @@ public class Printescpos {
             print.write(campo, "Total $");
             print.write(espacio(papelAncho, "Total $".length(), espacioCantidades(totales.getTotalDolares())));
             print.writeLF(formatDecimal.format(totales.getTotalDolares()));
-            print.writeLF("-------------------- Cambio --------------------");
-            print.write(campo, "Recib C$");
-            print.write(espacio(papelAncho, "Recib C$".length(), espacioCantidades(totales.getCordobasRecibidos())));
-            print.writeLF(formatDecimal.format(totales.getCordobasRecibidos()));
-            print.write(campo, "Recib $");
-            print.write(espacio(papelAncho, "Recib $".length(), espacioCantidades(totales.getDolaresRecibidos())));
-            print.writeLF(formatDecimal.format(totales.getDolaresRecibidos()));
-            print.write(campo, "Cambio");
-            print.write(espacio(papelAncho, "Cambio".length(), espacioCantidades(totales.getCambio())));
-            print.writeLF(formatDecimal.format(totales.getCambio()));
+            if (totales.getCordobasRecibidos() > 0 || totales.getDolaresRecibidos() > 0) {
+                print.writeLF("-------------------- Cambio --------------------");
+                print.write(campo, "Recib C$");
+                print.write(espacio(papelAncho, "Recib C$".length(), espacioCantidades(totales.getCordobasRecibidos())));
+                print.writeLF(formatDecimal.format(totales.getCordobasRecibidos()));
+                print.write(campo, "Recib $");
+                print.write(espacio(papelAncho, "Recib $".length(), espacioCantidades(totales.getDolaresRecibidos())));
+                print.writeLF(formatDecimal.format(totales.getDolaresRecibidos()));
+                print.write(campo, "Cambio");
+                print.write(espacio(papelAncho, "Cambio".length(), espacioCantidades(totales.getCambio())));
+                print.writeLF(formatDecimal.format(totales.getCambio()));
+            }
             print.writeLF("------------------------------------------------");
             print.writeLF(nota, tienda.getNota());
             print.feed(1);
