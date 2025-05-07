@@ -229,31 +229,34 @@ public class Printescpos {
             //String urlImagen = "https://api.cdsoft.net/uploads/logos/1745804389513-CDsoft.png";
             String urlImagen = "https://api.cdsoft.net/uploads/logos/" + tienda.getLogo();
             BufferedImage bufferedImage;
-            if (printer.getLogo() != null) {
-                bufferedImage = obtenerImagenLocal(printer.getLogo());
-            } else {
-                bufferedImage = obtenerImagenDeUrl(urlImagen);
-            }
+            try {
+                if (printer.getLogo() != null) {
+                    bufferedImage = obtenerImagenLocal(printer.getLogo());
+                } else {
+                    bufferedImage = obtenerImagenDeUrl(urlImagen);
+                }
 
-            //por ejemplo, 384 píxeles para una impresora de 58 mm y 576 píxeles para una de 80 mm
-            BufferedImage resizeImage = resizeImage(bufferedImage, 290); //tamano de ancho en pixeles
-            //sendImageInChunks(print, resizeImage, 24);
-            // Crear algoritmo bitonal
-            //Bitonal algorithm = new BitonalThreshold(127);
-            Bitonal algorithm = new BitonalOrderedDither(3, 3, 120, 170);
+                //por ejemplo, 384 píxeles para una impresora de 58 mm y 576 píxeles para una de 80 mm
+                BufferedImage resizeImage = resizeImage(bufferedImage, 290); //tamano de ancho en pixeles
+                //sendImageInChunks(print, resizeImage, 24);
+                // Crear algoritmo bitonal
+                //Bitonal algorithm = new BitonalThreshold(127);
+                Bitonal algorithm = new BitonalOrderedDither(3, 3, 120, 170);
 
-            // Crear EscPosImage a partir de la imagen descargada
-            EscPosImage escposImage = new EscPosImage(new CoffeeImageImpl(resizeImage), algorithm);
+                // Crear EscPosImage a partir de la imagen descargada
+                EscPosImage escposImage = new EscPosImage(new CoffeeImageImpl(resizeImage), algorithm);
 
-            /*
+                /*
                 Configurar el wrapper de imagen 
                 existen varios wrappers - RasterImageWrapper = para imagenes complejas con degradados etc
                 BitImageWrapper = para imagenes simples de blanco y negro
-             */
-            RasterBitImageWrapper imageWrapper = new RasterBitImageWrapper().setJustification(EscPosConst.Justification.Center);
-            //BitImageWrapper imageWrapper = new BitImageWrapper().setJustification(EscPosConst.Justification.Center);
-
-            print.write(imageWrapper, escposImage).feed(1);
+                 */
+                RasterBitImageWrapper imageWrapper = new RasterBitImageWrapper().setJustification(EscPosConst.Justification.Center);
+                //BitImageWrapper imageWrapper = new BitImageWrapper().setJustification(EscPosConst.Justification.Center);
+                print.write(imageWrapper, escposImage).feed(1);
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, "No se encontro el logo, por lo tanto no l imprimira");
+            }
 
             //nombre de la tienda
             if (tienda.getNombre() != null && !tienda.getNombre().isEmpty()) {
