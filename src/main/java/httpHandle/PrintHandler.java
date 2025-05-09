@@ -7,6 +7,7 @@ package httpHandle;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import entities.Comanda;
 import entities.Factura;
 import java.io.*;
 import java.net.Socket;
@@ -121,7 +122,60 @@ public class PrintHandler implements HttpHandler {
                 sendResponse(exchange, response, statusCode);
                 return;
             }
+            if("POST".equalsIgnoreCase(exchange.getRequestMethod()) && url.getPath().startsWith("/comanda/print")){
+                // 2. Extraer nombre de la impresora de la URL
+                URI requestURI = exchange.getRequestURI();
+                String path = requestURI.getPath(); // Debería ser /print/nombreImpresora
+                //String printerName = extractPrinterName(path);
+                String printerName = path.substring("/comanda/print/".length());
 
+                if (printerName == null || printerName.isEmpty()) {
+                    message = "Nombre de impresora no especificado en la URL. Use /comanda/print/{nombreImpresora}";
+                    response = Map.of("message", message);
+                    statusCode = 400; // Bad Request
+                    sendResponse(exchange, response, statusCode);
+                    return;
+                }
+
+                // 3. Buscar la configuración de la impresora
+                PrinterConfig config = printers.get(printerName);
+                if (config == null) {
+                    message = "Impresora '" + printerName + "' no encontrada en la configuración.";
+                    response = Map.of("message", message);
+                    statusCode = 404; // Not Found
+                    sendResponse(exchange, response, statusCode);
+                    return;
+                }
+
+                // 4. Leer los datos a imprimir del cuerpo de la petición
+                InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
+                //creamos una una clase de tipo Factura a partir de el json recibido
+                Comanda comanda = json.fromJson(reader, Comanda.class);
+                // 5. Enviar los datos a la impresora
+                LOGGER.log(Level.INFO, "Enviando datos a la impresora: {1} ({2}:{3})", new Object[]{config.getNombre(), config.getIp(), config.getPuerto()});
+
+                // 6. logica de imprimir la factura, con las copias o no
+                for (int i = 0; i < config.getCopias(); i++) {
+                    if (i == 0) {
+                        Printescpos.printComandaTcpIp(config, comanda, false);
+                    } else {
+                        Printescpos.printComandaTcpIp(config, comanda, true);
+                    }
+                }
+
+                if (config.getCopias() == 0) {
+                   Printescpos.printComandaTcpIp(config, comanda, false);
+                }
+                
+                // 6. Enviar respuesta exitosa
+                message = "Trabajo enviado a la impresora '" + printerName + "' exitosamente.";
+                //response = Map.of("message", message);
+                statusCode = 200; // OK
+                LOGGER.info(message);
+                response = Map.of("message", message);
+                sendResponse(exchange, response, statusCode);
+                return;
+            }
         } catch (IOException e) {
             message = "Error de E/S al procesar la impresión para '"
                     + extractPrinterName(exchange.getRequestURI().getPath()) + "': " + e.getMessage();

@@ -13,7 +13,9 @@ import com.github.anastaciocintra.escpos.image.GraphicsImageWrapper;
 import com.github.anastaciocintra.escpos.image.RasterBitImageWrapper;
 import com.github.anastaciocintra.output.PrinterOutputStream;
 import com.github.anastaciocintra.output.TcpIpOutputStream;
+import entities.Comanda;
 import entities.DatosGenerales;
+import entities.DatosGeneralesComanda;
 import entities.Detalles;
 import entities.Factura;
 import entities.Tienda;
@@ -49,7 +51,11 @@ public class Printescpos {
     final static int anchoTitulos = "Cant".length() + "Precio".length() + "Total".length();
     final static int papelAncho58mm = 38;
     private final static DecimalFormat formatDecimal = new DecimalFormat("###,###,###,##0.00");
-    static Style title = new Style().setJustification(EscPosConst.Justification.Center).setBold(true);
+    static Style title = new Style()
+            .setJustification(EscPosConst.Justification.Center)
+            .setBold(true)
+            .setFontSize(Style.FontSize._2, Style.FontSize._2)
+            .setFontName(Style.FontName.Font_B);
     static PrintModeStyle campo = new PrintModeStyle().setBold(true);
     static PrintModeStyle bold = new PrintModeStyle().setBold(true);
     static PrintModeStyle nota = new PrintModeStyle().setBold(true).setJustification(EscPosConst.Justification.Center);
@@ -368,5 +374,65 @@ public class Printescpos {
                 Logger.getLogger(Printescpos.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+    }
+    
+    /*
+     Funcion de impresion de comanda
+    */
+    public static String printComandaTcpIp(PrinterConfig printer, Comanda comanda, boolean copia){
+        List<Detalles> detalles = comanda.getDetalles();
+        DatosGeneralesComanda datosGenerales = comanda.getDatosGenerales();
+        //Crear conexion hacia impresora mediante ip
+        try(TcpIpOutputStream outputStream = new TcpIpOutputStream(printer.getIp(), printer.getPuerto())){
+            print = new EscPos(outputStream);
+            print.writeLF(title,"Pedido");
+            print.write(campo, "Id: ");
+            print.writeLF( datosGenerales.getId());
+            print.write(campo, "Fecha: ");
+            print.writeLF(datosGenerales.getFecha());
+            print.write(campo, "Atendido por: Cajero #");
+            print.writeLF(String.valueOf(datosGenerales.getEmpleado()));
+            print.write(campo, "Comprador: ");
+            print.writeLF(datosGenerales.getComprador());
+            print.writeLF("-".repeat(papelAncho));
+            print.write(bold, "Cant");
+            print.write(espacioTresColumnas(papelAncho, anchoTitulos));
+            print.write(bold, "Precio");
+            print.write(espacioTresColumnas(papelAncho, anchoTitulos));
+            print.writeLF(bold, "Total");
+            print.writeLF("-".repeat(papelAncho));
+            for (Detalles detalle : detalles) {
+                print.writeLF(texto(detalle.getDescripcion()));
+                print.write(formatDecimal.format(detalle.getCantidadProducto()));
+                print.write(" x ");
+                //print.write(espacioTresColumnas(papelAncho, espaciadoDetalles));
+                print.write(formatDecimal.format(detalle.getPrecioProducto()));
+                //print.write(espacioTresColumnas(papelAncho, espaciadoDetalles));
+                print.write(" = ");
+                print.writeLF(formatDecimal.format(detalle.getImporte()));
+                if (detalle.getDescuento() > 0) {
+                    print.write("Desc - ");
+                    print.write(formatDecimal.format(detalle.getDescuento()) + " ");
+                    print.write("PO: ");
+                    print.writeLF(formatDecimal.format(detalle.getPrecioVenta()));
+                }
+                print.writeLF("------------------------------------------------");
+            }
+            print.feed(4);
+            print.cut(EscPos.CutMode.FULL);
+        }catch (ConnectException ex) {
+            LOGGER.log(Level.SEVERE, null, "No se pudo conectar a la impresra, revise la configuracion " + ex);
+            return "Fallo la impresion";
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, "Error en la impresion " + ex);
+            return "Error en la impresion";
+        } finally {
+            try {
+                print.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Printescpos.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return "";
     }
 }

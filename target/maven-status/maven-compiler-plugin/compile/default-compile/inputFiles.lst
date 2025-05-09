@@ -1,5 +1,7 @@
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\com\cdsoft\printserver\PrintServer.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\Comanda.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\DatosGenerales.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\DatosGeneralesComanda.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\Detalles.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\Factura.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\Tienda.java
