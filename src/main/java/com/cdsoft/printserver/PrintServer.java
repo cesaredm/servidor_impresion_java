@@ -108,11 +108,12 @@ public class PrintServer implements Daemon {
             String portStr = properties.get("port");
             String copias = properties.get("copias");
             String logo = properties.get("logo");
+            String papelSize = properties.get("papelSize");
 
             if (ip != null && !ip.isEmpty() && portStr != null && !portStr.isEmpty()) {
                 try {
                     int port = Integer.parseInt(portStr);
-                    PrinterConfig config = new PrinterConfig(name, ip, logo, port, Integer.parseInt(copias));
+                    PrinterConfig config = new PrinterConfig(name, ip, logo, port, Integer.parseInt(copias), Integer.parseInt(papelSize));
                     printers.put(name, config);
                     LOGGER.log(Level.INFO, "Impresora cargada: {0}", config.toString());
                 } catch (NumberFormatException e) {

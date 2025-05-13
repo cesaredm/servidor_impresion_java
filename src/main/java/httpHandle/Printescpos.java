@@ -37,6 +37,7 @@ import java.awt.Image;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.util.Objects;
 import javax.imageio.stream.FileImageInputStream;
 
 /**
@@ -47,7 +48,7 @@ public class Printescpos {
 
     private final static Logger LOGGER = Logger.getLogger(Printescpos.class.getName());
     private static EscPos print;
-    final static int papelAncho = 48;
+    static int papelAncho = 42;
     final static int anchoTitulos = "Cant".length() + "Precio".length() + "Total".length();
     final static int papelAncho58mm = 38;
     private final static DecimalFormat formatDecimal = new DecimalFormat("###,###,###,##0.00");
@@ -223,6 +224,7 @@ public class Printescpos {
         Tienda tienda = factura.getTienda();
         DatosGenerales datosGenerales = factura.getDatosGenerales();
         Totales totales = factura.getTotales();
+        papelAncho = Objects.requireNonNullElse(printer.getPapelSize(), 48);
         //Crear conexion hacia la impresora
         try (TcpIpOutputStream outputStream = new TcpIpOutputStream(printer.getIp(), printer.getPuerto())) {
             // instancia de EscPos para enviar los comandos escpos
@@ -320,7 +322,7 @@ public class Printescpos {
                     print.write("PO: ");
                     print.writeLF(formatDecimal.format(detalle.getPrecioVenta()));
                 }
-                print.writeLF("------------------------------------------------");
+                print.writeLF("-".repeat(papelAncho));
             }
             print.write(campo, "Sub C$");
             print.write(espacio(papelAncho, "Sub C$".length(), espacioCantidades(totales.getSubTotalCordobas())));
@@ -341,7 +343,7 @@ public class Printescpos {
             print.write(espacio(papelAncho, "Total $".length(), espacioCantidades(totales.getTotalDolares())));
             print.writeLF(formatDecimal.format(totales.getTotalDolares()));
             if (totales.getCordobasRecibidos() > 0 || totales.getDolaresRecibidos() > 0) {
-                print.writeLF("-------------------- Cambio --------------------");
+                print.writeLF("---------------- Cambio ----------------");
                 print.write(campo, "Recib C$");
                 print.write(espacio(papelAncho, "Recib C$".length(), espacioCantidades(totales.getCordobasRecibidos())));
                 print.writeLF(formatDecimal.format(totales.getCordobasRecibidos()));
@@ -352,7 +354,7 @@ public class Printescpos {
                 print.write(espacio(papelAncho, "Cambio".length(), espacioCantidades(totales.getCambio())));
                 print.writeLF(formatDecimal.format(totales.getCambio()));
             }
-            print.writeLF("------------------------------------------------");
+            print.writeLF("-".repeat(papelAncho));
             print.writeLF(nota, tienda.getNota());
             print.feed(1);
             if (copia) {
@@ -375,19 +377,19 @@ public class Printescpos {
             }
         }
     }
-    
+
     /*
      Funcion de impresion de comanda
-    */
-    public static String printComandaTcpIp(PrinterConfig printer, Comanda comanda, boolean copia){
+     */
+    public static String printComandaTcpIp(PrinterConfig printer, Comanda comanda, boolean copia) {
         List<Detalles> detalles = comanda.getDetalles();
         DatosGeneralesComanda datosGenerales = comanda.getDatosGenerales();
         //Crear conexion hacia impresora mediante ip
-        try(TcpIpOutputStream outputStream = new TcpIpOutputStream(printer.getIp(), printer.getPuerto())){
+        try (TcpIpOutputStream outputStream = new TcpIpOutputStream(printer.getIp(), printer.getPuerto())) {
             print = new EscPos(outputStream);
-            print.writeLF(title,"Pedido");
+            print.writeLF(title, "Pedido");
             print.write(campo, "Id: ");
-            print.writeLF( datosGenerales.getId());
+            print.writeLF(datosGenerales.getId());
             print.write(campo, "Fecha: ");
             print.writeLF(datosGenerales.getFecha());
             print.write(campo, "Atendido por: Cajero #");
@@ -420,7 +422,7 @@ public class Printescpos {
             }
             print.feed(4);
             print.cut(EscPos.CutMode.FULL);
-        }catch (ConnectException ex) {
+        } catch (ConnectException ex) {
             LOGGER.log(Level.SEVERE, null, "No se pudo conectar a la impresra, revise la configuracion " + ex);
             return "Fallo la impresion";
         } catch (IOException ex) {
