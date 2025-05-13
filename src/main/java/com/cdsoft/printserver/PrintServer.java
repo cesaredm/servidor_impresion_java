@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -109,6 +110,7 @@ public class PrintServer implements Daemon {
             String copias = properties.get("copias");
             String logo = properties.get("logo");
             String papelSize = properties.get("papelSize");
+            if(Objects.isNull(papelSize)) papelSize = "48";
 
             if (ip != null && !ip.isEmpty() && portStr != null && !portStr.isEmpty()) {
                 try {

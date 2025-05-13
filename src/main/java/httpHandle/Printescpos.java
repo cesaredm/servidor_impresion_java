@@ -48,7 +48,7 @@ public class Printescpos {
 
     private final static Logger LOGGER = Logger.getLogger(Printescpos.class.getName());
     private static EscPos print;
-    static int papelAncho = 42;
+    static int papelAncho = 48;
     final static int anchoTitulos = "Cant".length() + "Precio".length() + "Total".length();
     final static int papelAncho58mm = 38;
     private final static DecimalFormat formatDecimal = new DecimalFormat("###,###,###,##0.00");
@@ -224,7 +224,7 @@ public class Printescpos {
         Tienda tienda = factura.getTienda();
         DatosGenerales datosGenerales = factura.getDatosGenerales();
         Totales totales = factura.getTotales();
-        papelAncho = Objects.requireNonNullElse(printer.getPapelSize(), 48);
+        papelAncho = printer.getPapelSize();
         //Crear conexion hacia la impresora
         try (TcpIpOutputStream outputStream = new TcpIpOutputStream(printer.getIp(), printer.getPuerto())) {
             // instancia de EscPos para enviar los comandos escpos
@@ -384,6 +384,7 @@ public class Printescpos {
     public static String printComandaTcpIp(PrinterConfig printer, Comanda comanda, boolean copia) {
         List<Detalles> detalles = comanda.getDetalles();
         DatosGeneralesComanda datosGenerales = comanda.getDatosGenerales();
+        papelAncho = printer.getPapelSize();
         //Crear conexion hacia impresora mediante ip
         try (TcpIpOutputStream outputStream = new TcpIpOutputStream(printer.getIp(), printer.getPuerto())) {
             print = new EscPos(outputStream);
@@ -395,7 +396,7 @@ public class Printescpos {
             print.write(campo, "Atendido por: Cajero #");
             print.writeLF(String.valueOf(datosGenerales.getEmpleado()));
             print.write(campo, "Comprador: ");
-            print.writeLF(datosGenerales.getComprador());
+            print.writeLF(texto(datosGenerales.getComprador()));
             print.writeLF("-".repeat(papelAncho));
             print.write(bold, "Cant");
             print.write(espacioTresColumnas(papelAncho, anchoTitulos));
@@ -418,7 +419,7 @@ public class Printescpos {
                     print.write("PO: ");
                     print.writeLF(formatDecimal.format(detalle.getPrecioVenta()));
                 }
-                print.writeLF("------------------------------------------------");
+                print.writeLF("-".repeat(papelAncho));
             }
             print.feed(4);
             print.cut(EscPos.CutMode.FULL);
