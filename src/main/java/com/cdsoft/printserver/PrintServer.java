@@ -137,6 +137,8 @@ public class PrintServer implements Daemon {
         server.createContext("/impresoras", new PrintHandler(printers));
         server.createContext("/recargar", new ConfigHandler());
         server.createContext("/comanda/print", new PrintHandler(printers));
+        server.createContext("/prueba", new PrintHandler(printers));
+        
         executor = Executors.newCachedThreadPool();
         //server.setExecutor(Executors.newCachedThreadPool());
         server.setExecutor(executor);

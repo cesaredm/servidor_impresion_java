@@ -14,6 +14,7 @@ import java.net.Socket;
 import java.net.URI;
 import java.nio.charset.StandardCharsets; // O el charset que necesite tu impresora
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,17 +32,49 @@ public class PrintHandler implements HttpHandler {
         this.printers = printers;
     }
 
-    @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        //String response = "Error interno del servidor.";
+    public PrinterConfig validacionImpresora(HttpExchange exchange, String ruta) {
         int statusCode = 500;
         String message = "";
         Map<String, Object> response; // para crear la respuesta
+        try {
+            URI requestURI = exchange.getRequestURI();
+            String path = requestURI.getPath(); // Debería ser /print/nombreImpresora
+            String printerName = extractPrinterName(path, ruta);
 
+            if (printerName == null || printerName.isEmpty()) {
+                message = "Nombre de impresora no especificado en la URL. Use /prueba/{nombreImpresora}";
+                response = Map.of("message", message);
+                statusCode = 400; // Bad Request
+                sendResponse(exchange, response, statusCode);
+                return null;
+            }
+
+            // 3. Buscar la configuración de la impresora
+            PrinterConfig config = printers.get(printerName);
+            if (config == null) {
+                message = "Impresora -" + printerName + "- no encontrada en la configuración.";
+                response = Map.of("message", message);
+                statusCode = 404; // Not Found
+                sendResponse(exchange, response, statusCode);
+                return null;
+            }
+            return config;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+
+    @Override
+    public void handle(HttpExchange exchange) throws IOException {
+        int statusCode = 500;
+        String message = "";
+        Map<String, Object> response; // para crear la respuesta
+        
         try {
             URI url = exchange.getRequestURI();
-            
-             // Configurar los encabezados CORS
+
+            // Configurar los encabezados CORS
             exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
             exchange.getResponseHeaders().add("Access-Control-Allow-Credentials", "true");
@@ -52,16 +85,15 @@ public class PrintHandler implements HttpHandler {
                 exchange.sendResponseHeaders(204, -1); // Respuesta vacía para OPTIONS
                 return;
             }
-
+            //Obtener las impresoras instaladas en la maquina
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod()) && url.getPath().equals("/impresoras")) {
                 statusCode = 200;
                 response = Map.of("Impresoras", Printescpos.listaImpresorasDisponibles());
                 sendResponse(exchange, response, statusCode);
                 return;
             }
-
-            // 1. Verificar método (solo aceptamos POST)
-            if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+            // Verificar método (solo aceptamos POST) para la ruta /print
+            if (!"POST".equalsIgnoreCase(exchange.getRequestMethod()) && url.getPath().startsWith("/print")) {
                 message = "Método no permitido. Use POST.";
                 response = Map.of("message", message);
                 statusCode = 405; // Method Not Allowed
@@ -69,11 +101,12 @@ public class PrintHandler implements HttpHandler {
                 sendResponse(exchange, response, statusCode);
                 return;
             }
+            // Imprimir factura
             if ("POST".equalsIgnoreCase(exchange.getRequestMethod()) && url.getPath().startsWith("/print")) {
-                // 2. Extraer nombre de la impresora de la URL
+                // Extraer nombre de la impresora de la URL
                 URI requestURI = exchange.getRequestURI();
                 String path = requestURI.getPath(); // Debería ser /print/nombreImpresora
-                String printerName = extractPrinterName(path);
+                String printerName = extractPrinterName(path, "/print/");
 
                 if (printerName == null || printerName.isEmpty()) {
                     message = "Nombre de impresora no especificado en la URL. Use /print/{nombreImpresora}";
@@ -83,7 +116,7 @@ public class PrintHandler implements HttpHandler {
                     return;
                 }
 
-                // 3. Buscar la configuración de la impresora
+                // Buscar la configuración de la impresora
                 PrinterConfig config = printers.get(printerName);
                 if (config == null) {
                     message = "Impresora '" + printerName + "' no encontrada en la configuración.";
@@ -93,14 +126,14 @@ public class PrintHandler implements HttpHandler {
                     return;
                 }
 
-                // 4. Leer los datos a imprimir del cuerpo de la petición
+                // Leer los datos a imprimir del cuerpo de la petición
                 InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
                 //creamos una una clase de tipo Factura a partir de el json recibido
                 Factura factura = json.fromJson(reader, Factura.class);
-                // 5. Enviar los datos a la impresora
+                // Enviar los datos a la impresora
                 LOGGER.log(Level.INFO, "Enviando datos a la impresora: {1} ({2}:{3})", new Object[]{config.getNombre(), config.getIp(), config.getPuerto()});
 
-                // 6. logica de imprimir la factura, con las copias o no
+                // logica de imprimir la factura, con las copias o no
                 for (int i = 0; i < config.getCopias(); i++) {
                     if (i == 0) {
                         Printescpos.printTcpIp(config, factura, false);
@@ -110,51 +143,30 @@ public class PrintHandler implements HttpHandler {
                 }
 
                 if (config.getCopias() == 0) {
-                   Printescpos.printTcpIp(config, factura, false);
+                    Printescpos.printTcpIp(config, factura, false);
                 }
-                
-                // 6. Enviar respuesta exitosa
+
+                // Enviar respuesta exitosa
                 message = "Trabajo enviado a la impresora '" + printerName + "' exitosamente.";
-                //response = Map.of("message", message);
                 statusCode = 200; // OK
                 LOGGER.info(message);
                 response = Map.of("message", message);
                 sendResponse(exchange, response, statusCode);
                 return;
             }
-            if("POST".equalsIgnoreCase(exchange.getRequestMethod()) && url.getPath().startsWith("/comanda/print")){
-                // 2. Extraer nombre de la impresora de la URL
-                URI requestURI = exchange.getRequestURI();
-                String path = requestURI.getPath(); // Debería ser /print/nombreImpresora
-                //String printerName = extractPrinterName(path);
-                String printerName = path.substring("/comanda/print/".length());
+            // imprimir comanda
+            if ("POST".equalsIgnoreCase(exchange.getRequestMethod()) && url.getPath().startsWith("/comanda/print")) {
+                // validar datos y configuracion de la impresora
+                PrinterConfig config = validacionImpresora(exchange, "/comanda/print/");
 
-                if (printerName == null || printerName.isEmpty()) {
-                    message = "Nombre de impresora no especificado en la URL. Use /comanda/print/{nombreImpresora}";
-                    response = Map.of("message", message);
-                    statusCode = 400; // Bad Request
-                    sendResponse(exchange, response, statusCode);
-                    return;
-                }
-
-                // 3. Buscar la configuración de la impresora
-                PrinterConfig config = printers.get(printerName);
-                if (config == null) {
-                    message = "Impresora '" + printerName + "' no encontrada en la configuración.";
-                    response = Map.of("message", message);
-                    statusCode = 404; // Not Found
-                    sendResponse(exchange, response, statusCode);
-                    return;
-                }
-
-                // 4. Leer los datos a imprimir del cuerpo de la petición
+                // Leer los datos a imprimir del cuerpo de la petición
                 InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
                 //creamos una una clase de tipo Factura a partir de el json recibido
                 Comanda comanda = json.fromJson(reader, Comanda.class);
-                // 5. Enviar los datos a la impresora
+                // Enviar los datos a la impresora
                 LOGGER.log(Level.INFO, "Enviando datos a la impresora: {1} ({2}:{3})", new Object[]{config.getNombre(), config.getIp(), config.getPuerto()});
 
-                // 6. logica de imprimir la factura, con las copias o no
+                // logica de imprimir la factura, con las copias o no
                 for (int i = 0; i < config.getCopias(); i++) {
                     if (i == 0) {
                         Printescpos.printComandaTcpIp(config, comanda, false);
@@ -164,11 +176,29 @@ public class PrintHandler implements HttpHandler {
                 }
 
                 if (config.getCopias() == 0) {
-                   Printescpos.printComandaTcpIp(config, comanda, false);
+                    Printescpos.printComandaTcpIp(config, comanda, false);
                 }
+
+                // Enviar respuesta exitosa
+                message = "Trabajo enviado a la impresora '" + config.getNombre() + "' exitosamente.";
+                statusCode = 200; // OK
+                LOGGER.info(message);
+                response = Map.of("message", message);
+                sendResponse(exchange, response, statusCode);
+                return;
+            }
+            // imprimir test de impresion
+            if ("GET".equalsIgnoreCase(exchange.getRequestMethod()) && url.getPath().startsWith("/prueba")) {
+                // validacion de datos y configuracion de impresora
+                PrinterConfig config = validacionImpresora(exchange, "/prueba/");
                 
-                // 6. Enviar respuesta exitosa
-                message = "Trabajo enviado a la impresora '" + printerName + "' exitosamente.";
+                if (Objects.isNull(config)) {
+                    return;
+                }
+
+                Printescpos.printTest(config);
+
+                message = "Trabajo de test enviado a la impresora '" + config.getNombre() + "' exitosamente.";
                 //response = Map.of("message", message);
                 statusCode = 200; // OK
                 LOGGER.info(message);
@@ -178,7 +208,7 @@ public class PrintHandler implements HttpHandler {
             }
         } catch (IOException e) {
             message = "Error de E/S al procesar la impresión para '"
-                    + extractPrinterName(exchange.getRequestURI().getPath()) + "': " + e.getMessage();
+                    + extractPrinterName(exchange.getRequestURI().getPath(), "") + "': " + e.getMessage();
             statusCode = 500; // Internal Server Error
             LOGGER.log(Level.SEVERE, message, e);
         } catch (Exception e) {
@@ -192,10 +222,10 @@ public class PrintHandler implements HttpHandler {
         }
     }
 
-    private String extractPrinterName(String path) {
+    private String extractPrinterName(String path, String ruta) {
         // Extraer de "/print/nombre" -> "nombre"
-        if (path != null && path.startsWith("/print/")) {
-            String name = path.substring("/print/".length());
+        if (path != null && path.startsWith(ruta)) {
+            String name = path.substring(ruta.length());
             // Podrías decodificar URL si esperas caracteres especiales:
             // return java.net.URLDecoder.decode(name, StandardCharsets.UTF_8);
             return name;
@@ -203,22 +233,11 @@ public class PrintHandler implements HttpHandler {
         return null;
     }
 
-    // Helper para leer todos los bytes del InputStream
-    private byte[] readAllBytes(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        int nRead;
-        byte[] data = new byte[1024];
-        while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
-            buffer.write(data, 0, nRead);
-        }
-        buffer.flush();
-        return buffer.toByteArray();
-    }
-
+    // funcion para la preparacion de la informacion de respuesta
     private void sendResponse(HttpExchange exchange, Map<String, Object> response, int statusCode) throws IOException {
-        // Asegúrate de que la respuesta sea UTF-8 para compatibilidad
-        //byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+        // creamos json para la respuesta
         String jsonResponse = this.json.toJson(response);
+        // Asegúrate de que la respuesta sea UTF-8 para compatibilidad
         byte[] responseBytes = jsonResponse.getBytes(StandardCharsets.UTF_8);
         //exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=utf-8");
         exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");

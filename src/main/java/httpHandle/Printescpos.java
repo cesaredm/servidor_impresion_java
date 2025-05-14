@@ -34,11 +34,6 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
-import java.util.Objects;
-import javax.imageio.stream.FileImageInputStream;
 
 /**
  *
@@ -49,8 +44,7 @@ public class Printescpos {
     private final static Logger LOGGER = Logger.getLogger(Printescpos.class.getName());
     private static EscPos print;
     static int papelAncho = 48;
-    final static int anchoTitulos = "Cant".length() + "Precio".length() + "Total".length();
-    final static int papelAncho58mm = 38;
+    private final static int anchoTitulos = "Cant".length() + "Precio".length() + "Total".length();
     private final static DecimalFormat formatDecimal = new DecimalFormat("###,###,###,##0.00");
     static Style title = new Style()
             .setJustification(EscPosConst.Justification.Center)
@@ -103,7 +97,8 @@ public class Printescpos {
     }
 
     /*
-        funcion encargadad de realizar la peticion de el logo al servidor de cdsoft
+        funcion encargada de realizar la peticion de el logo al servidor de cdsoft
+        esto obtine el logo de la tienda
      */
     public static BufferedImage obtenerImagenDeUrl(String urlImagen) throws IOException {
         URL url = new URL(urlImagen);
@@ -125,6 +120,7 @@ public class Printescpos {
         }
     }
 
+    //funcion para obtener la imagen o logo local desde la carpeta de impresorasConfig
     public static BufferedImage obtenerImagenLocal(String urlImage) throws IOException {
         try {
             BufferedImage image = ImageIO.read(new File("C:/impresorasConfig/" + urlImage));
@@ -177,6 +173,7 @@ public class Printescpos {
         }
     }
 
+    //envira imagenes en paquenas partes de bits - no se esta usando
     public static void sendImageInChunks(EscPos escPos, BufferedImage image, int chunkHeight) throws IOException {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -216,7 +213,7 @@ public class Printescpos {
     }
 
     /*
-        funcion para impresion en red
+        funcion para impresion de factura en red
         @Params printer = Objeto tipo PrinterConfig, factura = objeto tipo Factura , copia= si imprimira copia o no
      */
     public static String printTcpIp(PrinterConfig printer, Factura factura, boolean copia) {
@@ -298,32 +295,30 @@ public class Printescpos {
             print.writeLF(String.valueOf(datosGenerales.getFactura()));
             print.write(campo, "Comprador: ");
             print.writeLF(texto(datosGenerales.getComprador()));
-            //print.writeLF(bold, "------------------------------------------------");
             print.writeLF("*".repeat(papelAncho));
             print.write(bold, "Cant");
             print.write(espacioTresColumnas(papelAncho, anchoTitulos));
             print.write(bold, "Precio");
             print.write(espacioTresColumnas(papelAncho, anchoTitulos));
             print.writeLF(bold, "Total");
+            // Detalles
             print.writeLF("*".repeat(papelAncho));
-            //print.writeLF(bold, "------------------------------------------------");
             for (Detalles detalle : detalles) {
                 print.writeLF(texto(detalle.getDescripcion()));
                 print.write(formatDecimal.format(detalle.getCantidadProducto()));
                 print.write(" x ");
-                //print.write(espacioTresColumnas(papelAncho, espaciadoDetalles));
                 print.write(formatDecimal.format(detalle.getPrecioProducto()));
-                //print.write(espacioTresColumnas(papelAncho, espaciadoDetalles));
                 print.write(" = ");
                 print.writeLF(formatDecimal.format(detalle.getImporte()));
                 if (detalle.getDescuento() > 0) {
                     print.write("Desc - ");
                     print.write(formatDecimal.format(detalle.getDescuento()) + " ");
-                    print.write("PO: ");
+                    print.write(campo,"PO: ");
                     print.writeLF(formatDecimal.format(detalle.getPrecioVenta()));
                 }
                 print.writeLF("-".repeat(papelAncho));
             }
+            // Totales
             print.write(campo, "Sub C$");
             print.write(espacio(papelAncho, "Sub C$".length(), espacioCantidades(totales.getSubTotalCordobas())));
             print.writeLF(formatDecimal.format(totales.getSubTotalCordobas()));
@@ -408,9 +403,7 @@ public class Printescpos {
                 print.writeLF(texto(detalle.getDescripcion()));
                 print.write(formatDecimal.format(detalle.getCantidadProducto()));
                 print.write(" x ");
-                //print.write(espacioTresColumnas(papelAncho, espaciadoDetalles));
                 print.write(formatDecimal.format(detalle.getPrecioProducto()));
-                //print.write(espacioTresColumnas(papelAncho, espaciadoDetalles));
                 print.write(" = ");
                 print.writeLF(formatDecimal.format(detalle.getImporte()));
                 if (detalle.getDescuento() > 0) {
@@ -423,6 +416,7 @@ public class Printescpos {
             }
             print.feed(4);
             print.cut(EscPos.CutMode.FULL);
+            return "exito";
         } catch (ConnectException ex) {
             LOGGER.log(Level.SEVERE, null, "No se pudo conectar a la impresra, revise la configuracion " + ex);
             return "Fallo la impresion";
@@ -436,6 +430,23 @@ public class Printescpos {
                 Logger.getLogger(Printescpos.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        return "";
+    }
+
+    public static void printTest(PrinterConfig printer) {
+        try (TcpIpOutputStream outputStream = new TcpIpOutputStream(printer.getIp(), printer.getPuerto())) {
+            EscPos print = new EscPos(outputStream);
+            print.writeLF("Esto es un test");
+            print.feed(2);
+            print.writeLF("De impresion en la impresora " + printer.getNombre());
+            print.feed(5);
+            print.cut(EscPos.CutMode.FULL);
+            print.close();
+        } catch (ConnectException ex) {
+            LOGGER.log(Level.SEVERE, null, "No se pudo conectar a la impresra, revise la configuracion " + ex);
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, "Error en la impresion " + ex);
+        } finally {
+
+        }
     }
 }
