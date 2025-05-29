@@ -321,33 +321,33 @@ public class Printescpos {
             // Totales
             print.write(campo, "Sub C$");
             print.write(espacio(papelAncho, "Sub C$".length(), espacioCantidades(totales.getSubTotalCordobas())));
-            print.writeLF(formatDecimal.format(totales.getSubTotalCordobas()));
+            print.writeLF(bold, formatDecimal.format(totales.getSubTotalCordobas()));
             print.write(campo, "Sub $");
             print.write(espacio(papelAncho, "Sub $".length(), espacioCantidades(totales.getSubTotalDolares())));
-            print.writeLF(formatDecimal.format(totales.getSubTotalDolares()));
+            print.writeLF(bold, formatDecimal.format(totales.getSubTotalDolares()));
             print.write(campo, "Desc C$");
             print.write(espacio(papelAncho, "Desc C$".length(), espacioCantidades(totales.getDescuentoCordobas())));
-            print.writeLF(formatDecimal.format(totales.getDescuentoCordobas()));
+            print.writeLF(bold, formatDecimal.format(totales.getDescuentoCordobas()));
             print.write(campo, "Desc $");
             print.write(espacio(papelAncho, "Desc $".length(), espacioCantidades(totales.getDescuentoDolares())));
-            print.writeLF(formatDecimal.format(totales.getDescuentoDolares()));
+            print.writeLF(bold, formatDecimal.format(totales.getDescuentoDolares()));
             print.write(campo, "Total C$");
             print.write(espacio(papelAncho, "Total C$".length(), espacioCantidades(totales.getTotalCordobas())));
-            print.writeLF(formatDecimal.format(totales.getTotalCordobas()));
+            print.writeLF(bold, formatDecimal.format(totales.getTotalCordobas()));
             print.write(campo, "Total $");
             print.write(espacio(papelAncho, "Total $".length(), espacioCantidades(totales.getTotalDolares())));
-            print.writeLF(formatDecimal.format(totales.getTotalDolares()));
+            print.writeLF(bold, formatDecimal.format(totales.getTotalDolares()));
             if (totales.getCordobasRecibidos() > 0 || totales.getDolaresRecibidos() > 0) {
                 print.writeLF("---------------- Cambio ----------------");
-                print.write(campo, "Recib C$");
+                print.write(campo, "Recibio C$");
                 print.write(espacio(papelAncho, "Recib C$".length(), espacioCantidades(totales.getCordobasRecibidos())));
-                print.writeLF(formatDecimal.format(totales.getCordobasRecibidos()));
-                print.write(campo, "Recib $");
+                print.writeLF(bold, formatDecimal.format(totales.getCordobasRecibidos()));
+                print.write(campo, "Recibio $");
                 print.write(espacio(papelAncho, "Recib $".length(), espacioCantidades(totales.getDolaresRecibidos())));
-                print.writeLF(formatDecimal.format(totales.getDolaresRecibidos()));
+                print.writeLF(bold, formatDecimal.format(totales.getDolaresRecibidos()));
                 print.write(campo, "Cambio");
                 print.write(espacio(papelAncho, "Cambio".length(), espacioCantidades(totales.getCambio())));
-                print.writeLF(formatDecimal.format(totales.getCambio()));
+                print.writeLF(bold, formatDecimal.format(totales.getCambio()));
             }
             print.writeLF("-".repeat(papelAncho));
             print.writeLF(nota, tienda.getNota());

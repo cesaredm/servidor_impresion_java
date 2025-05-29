@@ -67,7 +67,7 @@ Source: "E:\cesar\Documents\servidor_impresion\prunsrv.exe"; DestDir: "{app}"; F
 [Run]
 ; Instalar Amazon Corretto en modo silencioso
 ; Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\amazon-corretto-23.0.2x64.msi"""; Description: Instalando JRE; Flags: waituntilidle
-Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\OpenJDK23U-jre_x64_23.0.2.msi"""; Description: Instalando JRE; Flags: waituntilidle
+Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\OpenJDK23U-jre_x64_23.0.2.msi"""; Description: Instalando JRE; Flags: waituntilterminated
 ; Registrar el servicio al finalizar la instalación
 ;Filename: "{app}\prunsrv.exe"; Parameters: "//IS//PrintServer --Install=""{app}\prunsrv.exe"" --DysplayName=""Servidor de impresion"" --Description=""Servicio de servidor de impresion"" --Startup=auto --Jvm=""{app}\runtime\bin\server\jvm.dll"" --StartMode=exe --StartImage=""{app}\PrintServer.exe"" --StopMode=exe --StopImage=""{app}\PrintServer.exe"" --StopParams=stop --ServiceUser=LocalSystem --StartPath=""{app}\""";
 Filename: "{app}\prunsrv.exe"; Parameters: "//IS//PrintServer --DisplayName=""Servidor de Impresión"" --Description=""Servicion de impresion CDsoft"" --Startup=auto --StartMode=exe --StartImage=""{app}\PrintServer.exe"" --StartPath=""{app}"" --StopMode=exe --StopImage=""{app}\PrintServer.exe"" --StopParams=stop --StopPath=""{app}\PrintServer.exe"" --ServiceUser=LocalSystem --LogPath=""{app}\log"" --LogLevel=Debug --StdOutput=""{app}\log\stdOutput.log"" --StdError=""{app}\log\stdError.log"""; WorkingDir: "{app}"; Flags: runhidden
@@ -157,6 +157,7 @@ se Incluyo en el script de instalacion.
 ```cmd
 netsh advfirewall firewall add rule name="Allow Port 8088" dir=in action=allow protocol=TCP localport=8088
 ```
+# Documentacion de uso
 
 ## Archivo de configuracion de impresoras
 
@@ -166,14 +167,21 @@ de la siguiente manera, ocupa los siguientes campos por ahora.
 - cocina.ip: que lleva la ip de la impresora en la red
 - cocina.port: el puerto de la impresora en este caso el puerto raw normamente siempre es 9100
 - cocina.copias: numero de copias que se nesecitan, si no ocupo el valor debe ser 0
+- cocina.logo: (Opcional) nombre del logo si se usara uno local, este debe estar ubicado dentro de la carpeta de **impresorasConfig** 
+- cocina.papelSize: (Opcional) normalmente es de 48, 32, o 42
 
 ```properties
 cocina.ip=192.168.1.45
 cocina.port=9100
 cocina.copias=0
+#cocina.logo=logo.png
+#cocina.papelSize=48
 
 #aqui mas impresoras
 #otra.ip=192.168.1.41
 #otro.port=9100
 #otro.copias=0
 ```
+## Rutas api
+- Imprimir factura
+**url:8088/print/{nombre_de_impresora}** : 
