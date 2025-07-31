@@ -275,9 +275,9 @@ public class Printescpos {
                 print.writeLF(tienda.getRut());
             }
 
-            print.write(campo, texto("Dirección: "));
+            print.write(campo, texto("Lugar: "));
             print.writeLF(tienda.getDireccion());
-            print.write(campo, texto("Teléfono: "));
+            print.write(campo, texto("Celular: "));
             print.writeLF(tienda.getTelefono());
             print.write(campo, "Fecha: ");
             print.writeLF(datosGenerales.getFecha());
@@ -309,6 +309,7 @@ public class Printescpos {
                 print.write(" x ");
                 print.write(formatDecimal.format(detalle.getPrecioProducto()));
                 print.write(" = ");
+                print.write(detalle.getMonedaVenta().equals("Dolar") ? " $ " : " C$ ");
                 print.writeLF(formatDecimal.format(detalle.getImporte()));
                 if (detalle.getDescuento() > 0) {
                     print.write("Desc - ");
@@ -340,13 +341,13 @@ public class Printescpos {
             if (totales.getCordobasRecibidos() > 0 || totales.getDolaresRecibidos() > 0) {
                 print.writeLF("---------------- Cambio ----------------");
                 print.write(campo, "Recibio C$");
-                print.write(espacio(papelAncho, "Recib C$".length(), espacioCantidades(totales.getCordobasRecibidos())));
+                print.write(espacio(papelAncho, "Recibio C$".length(), espacioCantidades(totales.getCordobasRecibidos())));
                 print.writeLF(bold, formatDecimal.format(totales.getCordobasRecibidos()));
                 print.write(campo, "Recibio $");
-                print.write(espacio(papelAncho, "Recib $".length(), espacioCantidades(totales.getDolaresRecibidos())));
+                print.write(espacio(papelAncho, "Recibio $".length(), espacioCantidades(totales.getDolaresRecibidos())));
                 print.writeLF(bold, formatDecimal.format(totales.getDolaresRecibidos()));
-                print.write(campo, "Cambio");
-                print.write(espacio(papelAncho, "Cambio".length(), espacioCantidades(totales.getCambio())));
+                print.write(campo, "Cambio C$");
+                print.write(espacio(papelAncho, "Cambio C$".length(), espacioCantidades(totales.getCambio())));
                 print.writeLF(bold, formatDecimal.format(totales.getCambio()));
             }
             print.writeLF("-".repeat(papelAncho));

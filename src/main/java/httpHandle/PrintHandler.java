@@ -151,6 +151,10 @@ public class PrintHandler implements HttpHandler {
                 statusCode = 200; // OK
                 LOGGER.info(message);
                 response = Map.of("message", message);
+                //Esto ayuda a evitar que el cliente corte la conexión tras cada impresión.
+                exchange.getResponseHeaders().set("Connection","keep-alive");
+                // Establecer un tiempo de espera de 1 hora (3600 segundos) y un máximo de 1000 peticiones.
+                exchange.getResponseHeaders().set("Keep-Alive", "timeout=3600, max=1000");
                 sendResponse(exchange, response, statusCode);
                 return;
             }
@@ -184,6 +188,10 @@ public class PrintHandler implements HttpHandler {
                 statusCode = 200; // OK
                 LOGGER.info(message);
                 response = Map.of("message", message);
+                //Esto ayuda a evitar que el cliente corte la conexión tras cada impresión.
+                exchange.getResponseHeaders().set("Connection","keep-alive");
+                // Establecer un tiempo de espera de 1 hora (3600 segundos) y un máximo de 1000 peticiones.
+                exchange.getResponseHeaders().set("Keep-Alive", "timeout=3600, max=1000");
                 sendResponse(exchange, response, statusCode);
                 return;
             }

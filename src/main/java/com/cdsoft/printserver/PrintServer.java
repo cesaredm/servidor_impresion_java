@@ -18,6 +18,8 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import org.apache.commons.daemon.Daemon;
@@ -110,7 +112,9 @@ public class PrintServer implements Daemon {
             String copias = properties.get("copias");
             String logo = properties.get("logo");
             String papelSize = properties.get("papelSize");
-            if(Objects.isNull(papelSize)) papelSize = "48";
+            if (Objects.isNull(papelSize)) {
+                papelSize = "48";
+            }
 
             if (ip != null && !ip.isEmpty() && portStr != null && !portStr.isEmpty()) {
                 try {
@@ -138,8 +142,14 @@ public class PrintServer implements Daemon {
         server.createContext("/recargar", new ConfigHandler());
         server.createContext("/comanda/print", new PrintHandler(printers));
         server.createContext("/prueba", new PrintHandler(printers));
-        
-        executor = Executors.newCachedThreadPool();
+
+        //executor = Executors.newCachedThreadPool();
+        executor = new ThreadPoolExecutor(
+                2, //core pool size : siempre al menos 2 hilos
+                10, // maximo pool size
+                60L, TimeUnit.SECONDS,
+                new SynchronousQueue<Runnable>()
+        );
         //server.setExecutor(Executors.newCachedThreadPool());
         server.setExecutor(executor);
         server.start();
@@ -153,7 +163,7 @@ public class PrintServer implements Daemon {
 
             try {
                 // Detener el servidor
-                server.stop(0);
+                server.stop(1);
                 LOGGER.log(Level.INFO, "Servidor detenido correctamente.");
 
                 // Apagar el executor si está activo
@@ -170,9 +180,10 @@ public class PrintServer implements Daemon {
                         }
                     }
                 }
-
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Error al detener el servidor de impresión", e);
+            } catch (InterruptedException e) {
+                LOGGER.log(Level.WARNING, "La interrupción en el hilo principal forzó el cierre del pool.", e);
+                executor.shutdownNow(); // Cierre forzado en caso de interrupción
+                Thread.currentThread().interrupt(); // Restablece el flag de interrupción
             } finally {
                 // Salir de la JVM después de cerrar todo
                 LOGGER.log(Level.INFO, "Detención completa. Saliendo del sistema...");
