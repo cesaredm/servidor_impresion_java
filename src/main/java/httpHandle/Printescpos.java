@@ -389,8 +389,9 @@ public class Printescpos {
             print.writeLF(datosGenerales.getId());
             print.write(campo, "Fecha: ");
             print.writeLF(datosGenerales.getFecha());
-            print.write(campo, "Atendido por: Cajero #");
-            print.writeLF(String.valueOf(datosGenerales.getEmpleado()));
+            print.write(campo, "Atendido por: # ");
+            print.write(String.valueOf(datosGenerales.getEmpleado()));
+            print.writeLF(" "+ datosGenerales.getUsuario());
             print.write(campo, "Comprador: ");
             print.writeLF(texto(datosGenerales.getComprador()));
             print.writeLF("-".repeat(papelAncho));

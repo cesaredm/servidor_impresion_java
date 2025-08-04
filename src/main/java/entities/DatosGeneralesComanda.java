@@ -9,6 +9,7 @@ public class DatosGeneralesComanda {
     private String id;
     private String fecha;
     private int empleado;
+    private String usuario;
     private String comprador;
 
     public String getId() {
@@ -34,6 +35,15 @@ public class DatosGeneralesComanda {
     public void setEmpleado(int empleado) {
         this.empleado = empleado;
     }
+
+    public String getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
+    }
+    
 
     public String getComprador() {
         return comprador;
