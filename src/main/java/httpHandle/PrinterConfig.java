@@ -17,14 +17,16 @@ public class PrinterConfig {
     private final int puerto;
     private final int copias;
     private final int papelSize;
+    private final String tipoConexion;
 
-    public PrinterConfig(String nombre, String ip, String logo, int puerto, int copias, int papelSize) {
+    public PrinterConfig(String nombre, String ip, String logo, int puerto, int copias, int papelSize, String tipoConexion) {
         this.nombre = nombre;
         this.ip = ip;
         this.puerto = puerto;
         this.copias = copias;
         this.logo = logo;
         this.papelSize = papelSize;
+        this.tipoConexion = tipoConexion;
     }
 
     public String getNombre() {
@@ -49,6 +51,10 @@ public class PrinterConfig {
 
     public int getPapelSize() {
         return papelSize;
+    }
+    
+    public String getTipoConexion(){
+        return tipoConexion;
     }
     
 

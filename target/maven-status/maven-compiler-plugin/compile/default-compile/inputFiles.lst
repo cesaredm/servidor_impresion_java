@@ -1,4 +1,6 @@
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\com\cdsoft\printserver\PrintServer.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\domain\AjustesImpresion.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\domain\Impresora.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\Comanda.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\DatosGenerales.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\DatosGeneralesComanda.java
@@ -10,4 +12,10 @@ E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\httpHandle\ConfigH
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\httpHandle\PrinterConfig.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\httpHandle\Printescpos.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\httpHandle\PrintHandler.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infra\ImpresionComandaRed.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infra\ImpresionComandaUsb.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infra\ImpresionRed.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infra\ImpresionTest.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infra\ImpresionUsb.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infra\PrinterFactory.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\samplesCommon\SamplesCommon.java

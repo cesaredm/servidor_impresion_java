@@ -7,17 +7,17 @@ package httpHandle;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import domain.Impresora;
 import entities.Comanda;
 import entities.Factura;
 import java.io.*;
-import java.net.Socket;
 import java.net.URI;
 import java.nio.charset.StandardCharsets; // O el charset que necesite tu impresora
 import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import infra.PrinterFactory;
 /**
  *
  * @author cesar
@@ -132,18 +132,19 @@ public class PrintHandler implements HttpHandler {
                 Factura factura = json.fromJson(reader, Factura.class);
                 // Enviar los datos a la impresora
                 LOGGER.log(Level.INFO, "Enviando datos a la impresora: {1} ({2}:{3})", new Object[]{config.getNombre(), config.getIp(), config.getPuerto()});
-
                 // logica de imprimir la factura, con las copias o no
+                Impresora impresoraTicket = (Impresora<Factura>) PrinterFactory.getPrinter(config.getTipoConexion(), "factura");
+                
+                if (config.getCopias() == 0) {
+                    impresoraTicket.imprimir(config, factura, false);
+                }
+                
                 for (int i = 0; i < config.getCopias(); i++) {
                     if (i == 0) {
-                        Printescpos.printTcpIp(config, factura, false);
+                       impresoraTicket.imprimir(config, factura, false);
                     } else {
-                        Printescpos.printTcpIp(config, factura, true);
+                       impresoraTicket.imprimir(config, factura, false);
                     }
-                }
-
-                if (config.getCopias() == 0) {
-                    Printescpos.printTcpIp(config, factura, false);
                 }
 
                 // Enviar respuesta exitosa
@@ -169,18 +170,18 @@ public class PrintHandler implements HttpHandler {
                 Comanda comanda = json.fromJson(reader, Comanda.class);
                 // Enviar los datos a la impresora
                 LOGGER.log(Level.INFO, "Enviando datos a la impresora: {1} ({2}:{3})", new Object[]{config.getNombre(), config.getIp(), config.getPuerto()});
-
+                Impresora impresoraTicket = (Impresora<Comanda>) PrinterFactory.getPrinter(config.getTipoConexion(), "comanda");
                 // logica de imprimir la factura, con las copias o no
+                 if (config.getCopias() == 0) {
+                    impresoraTicket.imprimir(config, comanda, false);
+                }
+                
                 for (int i = 0; i < config.getCopias(); i++) {
                     if (i == 0) {
-                        Printescpos.printComandaTcpIp(config, comanda, false);
+                        impresoraTicket.imprimir(config, comanda, true);
                     } else {
-                        Printescpos.printComandaTcpIp(config, comanda, true);
+                        impresoraTicket.imprimir(config, comanda, true);
                     }
-                }
-
-                if (config.getCopias() == 0) {
-                    Printescpos.printComandaTcpIp(config, comanda, false);
                 }
 
                 // Enviar respuesta exitosa
@@ -203,8 +204,11 @@ public class PrintHandler implements HttpHandler {
                 if (Objects.isNull(config)) {
                     return;
                 }
-
-                Printescpos.printTest(config);
+                
+                Impresora testImpresion = (Impresora<NullPointerException>) PrinterFactory.getPrinter(config.getTipoConexion(), "test");
+                
+                
+                testImpresion.imprimir(config, null, false);
 
                 message = "Trabajo de test enviado a la impresora '" + config.getNombre() + "' exitosamente.";
                 //response = Map.of("message", message);
