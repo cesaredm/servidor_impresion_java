@@ -38,7 +38,7 @@ En InnoSetup para la creacion del Instalador
 
 [Setup]
 AppName=PrintServer
-AppVersion=1.0
+AppVersion=0.4
 DefaultDirName={pf}\PrintServer
 DefaultGroupName=CDsoft
 OutputBaseFilename=PrintServerSetup
@@ -169,6 +169,7 @@ de la siguiente manera, ocupa los siguientes campos por ahora.
 - cocina.copias: numero de copias que se nesecitan, si no ocupo el valor debe ser 0
 - cocina.logo: (Opcional) nombre del logo si se usara uno local, este debe estar ubicado dentro de la carpeta de **impresorasConfig** 
 - cocina.papelSize: (Opcional) normalmente es de 48, 32, o 42
+- cocina.tipoConexion: para indicar que conexion se usara, si red o usb el valor debe ser red o usb
 
 ```properties
 cocina.ip=192.168.1.45
@@ -183,5 +184,11 @@ cocina.copias=0
 #otro.copias=0
 ```
 ## Rutas api
-- Imprimir factura
-**url:8088/print/{nombre_de_impresora}** : 
+- Imprimir factura **POST**
+**url:8088/print/{nombre_de_impresora}** : Imprimir factura
+- Imprimir comanda **POST**
+**url:8088/comanda/print/{nombre_de_impresora}** : Imprimir Comanda
+- Listar impresoras instaladas **GET**
+**url:8088/impresoras** : Listar las impresoras instaladas
+- Impresion de test **GET**
+**url:8088/prueba/{nombre_de_impresora}** : Impresion de test de impresion
