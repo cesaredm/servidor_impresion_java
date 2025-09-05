@@ -5,6 +5,7 @@ package com.cdsoft.printserver;
 
 import java.util.logging.Level;
 import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpsConfigurator;
 import httpHandle.ConfigHandler;
 import httpHandle.PrintHandler;
 import httpHandle.PrinterConfig;
@@ -21,9 +22,14 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonInitException;
+import infra.Mdns;
+import java.security.NoSuchAlgorithmException;
+import com.sun.net.httpserver.HttpsServer;
 
 public class PrintServer implements Daemon {
 
@@ -47,6 +53,7 @@ public class PrintServer implements Daemon {
     @Override
     public void start() throws Exception {
         startServer();
+        Mdns.iniciarMDNS();
     }
 
     @Override
@@ -54,6 +61,7 @@ public class PrintServer implements Daemon {
         if (server != null) {
             //server.stop(0);
             stopServer();
+            Mdns.detenerMdns();
             LOGGER.info("Servidor detenido");
         }
     }
@@ -135,8 +143,18 @@ public class PrintServer implements Daemon {
         }
     }
 
-    public static void startServer() throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(SERVER_PORT), 0);
+    public static void startServer() throws IOException, NoSuchAlgorithmException {
+        
+        /*SSLContext sslContext = SSLContext.getInstance("TLS");
+        try {
+            KeyManagerFactory kmf = Mdns.getCertificado();
+            sslContext.init(kmf.getKeyManagers(), null, null);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error de certificado");
+        }*/
+         HttpServer server = HttpServer.create(new InetSocketAddress(SERVER_PORT), 0);
+        //HttpsServer server = HttpsServer.create(new InetSocketAddress(SERVER_PORT), 0);
+        //server.setHttpsConfigurator(new HttpsConfigurator(sslContext));
         server.createContext("/print", new PrintHandler(printers));
         server.createContext("/impresoras", new PrintHandler(printers));
         server.createContext("/recargar", new ConfigHandler());
