@@ -40,6 +40,7 @@ public abstract class AjustesImpresion {
     protected PrintModeStyle campo = new PrintModeStyle().setBold(true);
     protected PrintModeStyle bold = new PrintModeStyle().setBold(true);
     protected PrintModeStyle nota = new PrintModeStyle().setBold(true).setJustification(EscPosConst.Justification.Center);
+    protected Style campoColorMode = new Style().setBold(true).setUnderline(Style.Underline.TwoDotThick).setColorMode(Style.ColorMode.WhiteOnBlack);
 
     // funcion encargada de contar el numero de caracteres de las cantidades agrgandole el formato decimal
     public int espacioCantidades(float value) {

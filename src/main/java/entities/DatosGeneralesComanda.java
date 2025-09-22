@@ -11,6 +11,7 @@ public class DatosGeneralesComanda {
     private int empleado;
     private String usuario;
     private String comprador;
+    private String nota;
 
     public String getId() {
         return id;
@@ -52,5 +53,15 @@ public class DatosGeneralesComanda {
     public void setComprador(String comprador) {
         this.comprador = comprador;
     }
+
+    public String getNota() {
+        return nota;
+    }
+
+    public void setNota(String nota) {
+        this.nota = nota;
+    }
+    
+    
     
 }

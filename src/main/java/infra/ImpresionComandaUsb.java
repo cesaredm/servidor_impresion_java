@@ -42,6 +42,11 @@ public class ImpresionComandaUsb extends AjustesImpresion implements Impresora<C
             print.writeLF(" " + datosGenerales.getUsuario());
             print.write(campo, "Comprador: ");
             print.writeLF(texto(datosGenerales.getComprador()));
+            if(!datosGenerales.getNota().equals("")){
+                print.writeLF("");
+                print.write(campoColorMode, "Nota:");
+                print.writeLF(" " + texto(datosGenerales.getNota()));
+            }
             print.writeLF("-".repeat(papelAncho));
             print.write(bold, "Cant");
             print.write(espacioTresColumnas(papelAncho, anchoTitulos));
