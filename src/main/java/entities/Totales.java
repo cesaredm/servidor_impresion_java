@@ -17,6 +17,8 @@ public class Totales {
     private float descuentoDolares;
     private float dolaresRecibidos;
     private float cordobasRecibidos;
+    private float globalCordobas;
+    private float globalDolares;
     private float cambio;
 
     public float getTotalCordobas() {
@@ -81,6 +83,22 @@ public class Totales {
 
     public void setCordobasRecibidos(float cordobasRecibidos) {
         this.cordobasRecibidos = cordobasRecibidos;
+    }
+
+    public float getGlobalCordobas() {
+        return globalCordobas;
+    }
+
+    public void setGlobalCordobas(float globalCordobas) {
+        this.globalCordobas = globalCordobas;
+    }
+
+    public float getGlobalDolares() {
+        return globalDolares;
+    }
+
+    public void setGlobalDolares(float globalDolares) {
+        this.globalDolares = globalDolares;
     }
 
     public float getCambio() {

@@ -74,6 +74,12 @@ public abstract class AjustesImpresion {
         }
         return " ".repeat(espacios);
     }
+    
+    public String tituloConLineaPunteada(String label, int anchoPapel){
+        int espacios = (anchoPapel - label.length()) / 2;
+        if(espacios < 0) espacios = 0;
+        return "-".repeat(espacios) + label + "-".repeat(espacios);
+    }
 
     /*
         funcion encargada de dar espacio dinamico a tres columnas
