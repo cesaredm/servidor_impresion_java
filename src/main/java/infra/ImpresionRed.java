@@ -32,11 +32,12 @@ import java.util.logging.Logger;
  * @author cesar
  */
 public class ImpresionRed extends AjustesImpresion implements Impresora<Factura> {
-      EscPos print;
+
+    EscPos print;
 
     @Override
     public String imprimir(PrinterConfig printer, Factura factura, boolean copias) {
-        
+
         List<Detalles> detalles = factura.getDetalles();
         Tienda tienda = factura.getTienda();
         DatosGenerales datosGenerales = factura.getDatosGenerales();
@@ -134,7 +135,7 @@ public class ImpresionRed extends AjustesImpresion implements Impresora<Factura>
                 if (detalle.getDescuento() > 0) {
                     print.write("Desc - ");
                     print.write(formatDecimal.format(detalle.getDescuento()) + " ");
-                    print.write(campo,"PO: ");
+                    print.write(campo, "PO: ");
                     print.writeLF(formatDecimal.format(detalle.getPrecioVenta()));
                 }
                 print.writeLF("-".repeat(papelAncho));
@@ -158,8 +159,12 @@ public class ImpresionRed extends AjustesImpresion implements Impresora<Factura>
             print.write(campo, "Total $");
             print.write(espacio(papelAncho, "Total $".length(), espacioCantidades(totales.getTotalDolares())));
             print.writeLF(bold, formatDecimal.format(totales.getTotalDolares()));
+            if (totales.getGlobalCordobas() > 0 && totales.getGlobalDolares() > 0) {
+                print.writeLF(tituloConLineaPunteada(" Globales ", papelAncho));
+                print.writeLF(bold, "C$ " + formatDecimal.format(totales.getGlobalCordobas()) + " -  $ " + formatDecimal.format(totales.getGlobalDolares()));
+            }
             if (totales.getCordobasRecibidos() > 0 || totales.getDolaresRecibidos() > 0) {
-                print.writeLF("---------------- Cambio ----------------");
+                print.writeLF(tituloConLineaPunteada(" Cambio ", papelAncho));
                 print.write(campo, "Recibio C$");
                 print.write(espacio(papelAncho, "Recibio C$".length(), espacioCantidades(totales.getCordobasRecibidos())));
                 print.writeLF(bold, formatDecimal.format(totales.getCordobasRecibidos()));
@@ -192,7 +197,7 @@ public class ImpresionRed extends AjustesImpresion implements Impresora<Factura>
                 Logger.getLogger(ImpresionRed.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
+
     }
-    
+
 }

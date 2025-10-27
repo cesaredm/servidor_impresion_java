@@ -43,8 +43,7 @@ public class ImpresionUsb extends AjustesImpresion implements Impresora<Factura>
         DatosGenerales datosGenerales = factura.getDatosGenerales();
         Totales totales = factura.getTotales();
         papelAncho = printer.getPapelSize();
-        
-        
+
         //Crear conexion hacia la impresora
         PrintService printService = PrinterOutputStream.getPrintServiceByName(printer.getNombre());
         try (PrinterOutputStream outputStream = new PrinterOutputStream(printService)) {
@@ -162,8 +161,10 @@ public class ImpresionUsb extends AjustesImpresion implements Impresora<Factura>
             print.write(campo, "Total $");
             print.write(espacio(papelAncho, "Total $".length(), espacioCantidades(totales.getTotalDolares())));
             print.writeLF(bold, formatDecimal.format(totales.getTotalDolares()));
-            print.writeLF(tituloConLineaPunteada(" Globales ", papelAncho));
-            print.writeLF(bold, "C$ " + formatDecimal.format(totales.getGlobalCordobas()) + " -  $ " + formatDecimal.format(totales.getGlobalDolares()));
+            if (totales.getGlobalCordobas() > 0 && totales.getGlobalDolares() > 0) {
+                print.writeLF(tituloConLineaPunteada(" Globales ", papelAncho));
+                print.writeLF(bold, "C$ " + formatDecimal.format(totales.getGlobalCordobas()) + " -  $ " + formatDecimal.format(totales.getGlobalDolares()));
+            }
             if (totales.getCordobasRecibidos() > 0 || totales.getDolaresRecibidos() > 0) {
                 print.writeLF(tituloConLineaPunteada(" Cambio ", papelAncho));
                 print.write(campo, "Recibio C$");
