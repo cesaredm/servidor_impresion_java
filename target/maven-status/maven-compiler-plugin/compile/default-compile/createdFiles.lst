@@ -1,11 +1,13 @@
 com\cdsoft\printserver\PrintServer.class
 infra\ImpresionComandaUsb.class
 httpHandle\PrinterConfig.class
+entities\DetallesCotizacion.class
 entities\Totales.class
 entities\Tienda.class
 infra\ImpresionTest.class
 entities\Factura.class
 infra\ImpresionRed.class
+entities\DatosGeneralesCotizacion.class
 infra\ImpresionUsb.class
 entities\DatosGenerales.class
 httpHandle\ConfigHandler.class
@@ -13,7 +15,9 @@ domain\Impresora.class
 domain\AjustesImpresion.class
 infra\ImpresionComandaRed.class
 infra\Mdns.class
+entities\Cotizacion.class
 entities\Detalles.class
+infra\ImpresionCotizacion.class
 infra\PrinterFactory.class
 samplesCommon\SamplesCommon.class
 entities\DatosGeneralesComanda.class

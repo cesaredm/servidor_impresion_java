@@ -9,6 +9,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import domain.Impresora;
 import entities.Comanda;
+import entities.Cotizacion;
 import entities.Factura;
 import java.io.*;
 import java.net.URI;
@@ -18,6 +19,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import infra.PrinterFactory;
+
 /**
  *
  * @author cesar
@@ -63,14 +65,13 @@ public class PrintHandler implements HttpHandler {
             return null;
         }
     }
-    
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         int statusCode = 500;
         String message = "";
         Map<String, Object> response; // para crear la respuesta
-        
+
         try {
             URI url = exchange.getRequestURI();
 
@@ -134,16 +135,16 @@ public class PrintHandler implements HttpHandler {
                 LOGGER.log(Level.INFO, "Enviando datos a la impresora: {1} ({2}:{3})", new Object[]{config.getNombre(), config.getIp(), config.getPuerto()});
                 // logica de imprimir la factura, con las copias o no
                 Impresora impresoraTicket = (Impresora<Factura>) PrinterFactory.getPrinter(config.getTipoConexion(), "factura");
-                
+
                 if (config.getCopias() == 0) {
                     impresoraTicket.imprimir(config, factura, false);
                 }
-                
+
                 for (int i = 0; i < config.getCopias(); i++) {
                     if (i == 0) {
-                       impresoraTicket.imprimir(config, factura, false);
+                        impresoraTicket.imprimir(config, factura, false);
                     } else {
-                       impresoraTicket.imprimir(config, factura, false);
+                        impresoraTicket.imprimir(config, factura, false);
                     }
                 }
 
@@ -153,12 +154,13 @@ public class PrintHandler implements HttpHandler {
                 LOGGER.info(message);
                 response = Map.of("message", message);
                 //Esto ayuda a evitar que el cliente corte la conexión tras cada impresión.
-                exchange.getResponseHeaders().set("Connection","keep-alive");
+                exchange.getResponseHeaders().set("Connection", "keep-alive");
                 // Establecer un tiempo de espera de 1 hora (3600 segundos) y un máximo de 1000 peticiones.
                 exchange.getResponseHeaders().set("Keep-Alive", "timeout=3600, max=1000");
                 sendResponse(exchange, response, statusCode);
                 return;
             }
+
             // imprimir comanda
             if ("POST".equalsIgnoreCase(exchange.getRequestMethod()) && url.getPath().startsWith("/comanda/print")) {
                 // validar datos y configuracion de la impresora
@@ -172,10 +174,10 @@ public class PrintHandler implements HttpHandler {
                 LOGGER.log(Level.INFO, "Enviando datos a la impresora: {1} ({2}:{3})", new Object[]{config.getNombre(), config.getIp(), config.getPuerto()});
                 Impresora impresoraTicket = (Impresora<Comanda>) PrinterFactory.getPrinter(config.getTipoConexion(), "comanda");
                 // logica de imprimir la factura, con las copias o no
-                 if (config.getCopias() == 0) {
+                if (config.getCopias() == 0) {
                     impresoraTicket.imprimir(config, comanda, false);
                 }
-                
+
                 for (int i = 0; i < config.getCopias(); i++) {
                     if (i == 0) {
                         impresoraTicket.imprimir(config, comanda, true);
@@ -190,7 +192,43 @@ public class PrintHandler implements HttpHandler {
                 LOGGER.info(message);
                 response = Map.of("message", message);
                 //Esto ayuda a evitar que el cliente corte la conexión tras cada impresión.
-                exchange.getResponseHeaders().set("Connection","keep-alive");
+                exchange.getResponseHeaders().set("Connection", "keep-alive");
+                // Establecer un tiempo de espera de 1 hora (3600 segundos) y un máximo de 1000 peticiones.
+                exchange.getResponseHeaders().set("Keep-Alive", "timeout=3600, max=1000");
+                sendResponse(exchange, response, statusCode);
+                return;
+            }
+            // Imprimir cotizacion
+            if ("POST".equalsIgnoreCase(exchange.getRequestMethod()) && url.getPath().startsWith("/cotizacion/print")) {
+                PrinterConfig config = validacionImpresora(exchange, "/cotizacion/print/");
+                // Leer los datos a imprimir del cuerpo de la petición
+                InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
+                //creamos una una clase de tipo Factura a partir de el json recibido
+                Cotizacion factura = json.fromJson(reader, Cotizacion.class);
+                // Enviar los datos a la impresora
+                LOGGER.log(Level.INFO, "Enviando datos a la impresora: {1} ({2}:{3})", new Object[]{config.getNombre(), config.getIp(), config.getPuerto()});
+                // logica de imprimir la factura, con las copias o no
+                Impresora impresoraTicket = (Impresora<Cotizacion>) PrinterFactory.getPrinter(config.getTipoConexion(), "cotizacion");
+
+                if (config.getCopias() == 0) {
+                    impresoraTicket.imprimir(config, factura, false);
+                }
+
+                for (int i = 0; i < config.getCopias(); i++) {
+                    if (i == 0) {
+                        impresoraTicket.imprimir(config, factura, false);
+                    } else {
+                        impresoraTicket.imprimir(config, factura, false);
+                    }
+                }
+
+                // Enviar respuesta exitosa
+                message = "Trabajo enviado a la impresora '" + config.getNombre() + "' exitosamente.";
+                statusCode = 200; // OK
+                LOGGER.info(message);
+                response = Map.of("message", message);
+                //Esto ayuda a evitar que el cliente corte la conexión tras cada impresión.
+                exchange.getResponseHeaders().set("Connection", "keep-alive");
                 // Establecer un tiempo de espera de 1 hora (3600 segundos) y un máximo de 1000 peticiones.
                 exchange.getResponseHeaders().set("Keep-Alive", "timeout=3600, max=1000");
                 sendResponse(exchange, response, statusCode);
@@ -200,14 +238,13 @@ public class PrintHandler implements HttpHandler {
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod()) && url.getPath().startsWith("/prueba")) {
                 // validacion de datos y configuracion de impresora
                 PrinterConfig config = validacionImpresora(exchange, "/prueba/");
-                
+
                 if (Objects.isNull(config)) {
                     return;
                 }
-                
+
                 Impresora testImpresion = (Impresora<NullPointerException>) PrinterFactory.getPrinter(config.getTipoConexion(), "test");
-                
-                
+
                 testImpresion.imprimir(config, null, false);
 
                 message = "Trabajo de test enviado a la impresora '" + config.getNombre() + "' exitosamente.";

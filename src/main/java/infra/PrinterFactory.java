@@ -32,6 +32,10 @@ public class PrinterFactory {
         if (tipo.equals("test")) {
             return new ImpresionTest();
         }
+        
+        if(tipo.equals("cotizacion")){
+            return new ImpresionCotizacion();
+        }
 
         throw new IllegalArgumentException("Impresion no soportada");
     }
