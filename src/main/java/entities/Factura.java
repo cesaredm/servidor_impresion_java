@@ -15,6 +15,7 @@ public class Factura {
     private List<Detalles> detalles;
     private Tienda tienda;
     private Totales totales;
+    private float tasaCambio;
 
     public DatosGenerales getDatosGenerales() {
         return datosGenerales;
@@ -48,5 +49,11 @@ public class Factura {
         this.totales = totales;
     }
     
-    
+    public float getTasaCambio() {
+        return tasaCambio;
+    }
+
+    public void setTasaCambio(float tasaCambio) {
+        this.tasaCambio = tasaCambio;
+    }
 }

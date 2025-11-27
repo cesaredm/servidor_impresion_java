@@ -1,4 +1,5 @@
 com\cdsoft\printserver\PrintServer.class
+entities\Pago.class
 infra\ImpresionComandaUsb.class
 httpHandle\PrinterConfig.class
 entities\DetallesCotizacion.class
@@ -9,6 +10,7 @@ entities\Factura.class
 infra\ImpresionRed.class
 entities\DatosGeneralesCotizacion.class
 infra\ImpresionUsb.class
+infra\ImpresionPago.class
 entities\DatosGenerales.class
 httpHandle\ConfigHandler.class
 domain\Impresora.class

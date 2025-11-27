@@ -9,6 +9,7 @@ E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\DatosGene
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\Detalles.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\DetallesCotizacion.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\Factura.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\Pago.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\Tienda.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\entities\Totales.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\httpHandle\ConfigHandler.java
@@ -18,6 +19,7 @@ E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\httpHandle\PrintHa
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infra\ImpresionComandaRed.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infra\ImpresionComandaUsb.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infra\ImpresionCotizacion.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infra\ImpresionPago.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infra\ImpresionRed.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infra\ImpresionTest.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infra\ImpresionUsb.java

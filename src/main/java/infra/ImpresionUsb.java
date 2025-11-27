@@ -161,13 +161,14 @@ public class ImpresionUsb extends AjustesImpresion implements Impresora<Factura>
             print.write(campo, "Total $");
             print.write(espacio(papelAncho, "Total $".length(), espacioCantidades(totales.getTotalDolares())));
             print.writeLF(bold, formatDecimal.format(totales.getTotalDolares()));
+            print.writeLF(bold,"TC/"+formatDecimal.format(factura.getTasaCambio()));
             if (totales.getGlobalCordobas() > 0 && totales.getGlobalDolares() > 0) {
                 print.writeLF(tituloConLineaPunteada(" Globales ", papelAncho));
-                print.writeLF(bold, "C$ " + formatDecimal.format(totales.getGlobalCordobas()) + " -  $ " + formatDecimal.format(totales.getGlobalDolares()));
+                print.writeLF(boldCenter, "C$ " + formatDecimal.format(totales.getGlobalCordobas()) + " -  $ " + formatDecimal.format(totales.getGlobalDolares()));
             }
             if (totales.getCordobasRecibidos() > 0 || totales.getDolaresRecibidos() > 0) {
                 print.writeLF(tituloConLineaPunteada(" Cambio ", papelAncho));
-                print.write(campo, "Recibio C$");
+                print.write(campo, "Recibido C$");
                 print.write(espacio(papelAncho, "Recibio C$".length(), espacioCantidades(totales.getCordobasRecibidos())));
                 print.writeLF(bold, formatDecimal.format(totales.getCordobasRecibidos()));
                 print.write(campo, "Recibio $");

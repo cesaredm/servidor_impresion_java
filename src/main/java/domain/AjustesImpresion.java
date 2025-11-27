@@ -39,6 +39,7 @@ public abstract class AjustesImpresion {
             .setFontName(Style.FontName.Font_B);
     protected PrintModeStyle campo = new PrintModeStyle().setBold(true);
     protected PrintModeStyle bold = new PrintModeStyle().setBold(true);
+    protected PrintModeStyle boldCenter = new PrintModeStyle().setBold(true).setJustification(EscPosConst.Justification.Center);
     protected PrintModeStyle nota = new PrintModeStyle().setBold(true).setJustification(EscPosConst.Justification.Center);
     protected Style campoColorMode = new Style().setBold(true).setUnderline(Style.Underline.TwoDotThick).setColorMode(Style.ColorMode.WhiteOnBlack);
     protected Style subTitle = new Style().setJustification(EscPosConst.Justification.Center).setBold(true);

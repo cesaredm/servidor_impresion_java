@@ -11,6 +11,7 @@ import domain.Impresora;
 import entities.Comanda;
 import entities.Cotizacion;
 import entities.Factura;
+import entities.Pago;
 import java.io.*;
 import java.net.URI;
 import java.nio.charset.StandardCharsets; // O el charset que necesite tu impresora
@@ -144,7 +145,7 @@ public class PrintHandler implements HttpHandler {
                     if (i == 0) {
                         impresoraTicket.imprimir(config, factura, false);
                     } else {
-                        impresoraTicket.imprimir(config, factura, false);
+                        impresoraTicket.imprimir(config, factura, true);
                     }
                 }
 
@@ -218,7 +219,43 @@ public class PrintHandler implements HttpHandler {
                     if (i == 0) {
                         impresoraTicket.imprimir(config, factura, false);
                     } else {
-                        impresoraTicket.imprimir(config, factura, false);
+                        impresoraTicket.imprimir(config, factura, true);
+                    }
+                }
+
+                // Enviar respuesta exitosa
+                message = "Trabajo enviado a la impresora '" + config.getNombre() + "' exitosamente.";
+                statusCode = 200; // OK
+                LOGGER.info(message);
+                response = Map.of("message", message);
+                //Esto ayuda a evitar que el cliente corte la conexión tras cada impresión.
+                exchange.getResponseHeaders().set("Connection", "keep-alive");
+                // Establecer un tiempo de espera de 1 hora (3600 segundos) y un máximo de 1000 peticiones.
+                exchange.getResponseHeaders().set("Keep-Alive", "timeout=3600, max=1000");
+                sendResponse(exchange, response, statusCode);
+                return;
+            }
+             // Imprimir baucher de pago
+            if ("POST".equalsIgnoreCase(exchange.getRequestMethod()) && url.getPath().startsWith("/pago/print")) {
+                PrinterConfig config = validacionImpresora(exchange, "/pago/print/");
+                // Leer los datos a imprimir del cuerpo de la petición
+                InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
+                //creamos una una clase de tipo Factura a partir de el json recibido
+                Pago pago = json.fromJson(reader, Pago.class);
+                // Enviar los datos a la impresora
+                LOGGER.log(Level.INFO, "Enviando datos a la impresora: {1} ({2}:{3})", new Object[]{config.getNombre(), config.getIp(), config.getPuerto()});
+                // logica de imprimir la factura, con las copias o no
+                Impresora impresoraTicket = (Impresora<Pago>) PrinterFactory.getPrinter(config.getTipoConexion(), "pago");
+
+                if (config.getCopias() == 0) {
+                    impresoraTicket.imprimir(config, pago, false);
+                }
+
+                for (int i = 0; i < config.getCopias(); i++) {
+                    if (i == 0) {
+                        impresoraTicket.imprimir(config, pago, false);
+                    } else {
+                        impresoraTicket.imprimir(config, pago, false);
                     }
                 }
 
