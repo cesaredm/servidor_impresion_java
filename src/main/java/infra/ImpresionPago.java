@@ -109,15 +109,16 @@ public class ImpresionPago  extends AjustesImpresion implements Impresora<Pago> 
 
             print.write(campo, texto("Lugar: "));
             print.writeLF(tienda.getDireccion());
-            print.write(campo, texto("Celular: "));
+            print.write(campo, texto("Celular: ")); 
             print.writeLF(tienda.getTelefono());
             print.write(campo, "Fecha: ");
             print.writeLF(data.getFecha());
-            print.write(campo, "Tipo venta: ");
+            print.write(campo, "Forma de pago: ");
             print.writeLF(data.getFormaPago());
+            print.write(campo, "Cliente: ");
             print.writeLF(texto(data.getCliente()));
-            print.write(campo, "ID: #");
-            // wprint.writeLF(String.valueOf(datosGenerales.getFactura()));
+            print.writeLF(campo, "ID: #");
+            print.writeLF("-".repeat(papelAncho));
             print.write(campo, "Saldo cordobas");
             print.write(espacio(papelAncho, "Saldo cordobas".length(), espacioCantidades(data.getSaldoAnteriorCordobas())));
             print.writeLF(bold, formatDecimal.format(data.getSaldoAnteriorCordobas()));
@@ -125,15 +126,15 @@ public class ImpresionPago  extends AjustesImpresion implements Impresora<Pago> 
             print.write(campo, "Saldo dolares");
             print.write(espacio(papelAncho, "Saldo dolares".length(), espacioCantidades(data.getSaldoAnteriorDolares())));
             print.writeLF(bold, formatDecimal.format(data.getSaldoAnteriorDolares()));
-            
+            print.writeLF("-".repeat(papelAncho));
             print.write(campo, "Monto");
             print.write(espacio(papelAncho, "Monto".length(), espacioCantidades(data.getMonto())));
             print.writeLF(bold, formatDecimal.format(data.getMonto()));
             
             print.write(campo, "Moneda");
             print.write(espacio(papelAncho, "Moneda".length(), data.getMoneda().length()));
-            print.writeLF(bold, formatDecimal.format(data.getMoneda()));
-            
+            print.writeLF(bold, data.getMoneda());
+            print.writeLF("-".repeat(papelAncho));
             print.write(campo, "Nuevo saldo C$");
             print.write(espacio(papelAncho, "Nuevo saldo C$".length(), espacioCantidades(data.getNuevoSaldoCordobas())));
             print.writeLF(bold, formatDecimal.format(data.getNuevoSaldoCordobas()));

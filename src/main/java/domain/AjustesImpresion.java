@@ -43,6 +43,10 @@ public abstract class AjustesImpresion {
     protected PrintModeStyle nota = new PrintModeStyle().setBold(true).setJustification(EscPosConst.Justification.Center);
     protected Style campoColorMode = new Style().setBold(true).setUnderline(Style.Underline.TwoDotThick).setColorMode(Style.ColorMode.WhiteOnBlack);
     protected Style subTitle = new Style().setJustification(EscPosConst.Justification.Center).setBold(true);
+    
+    public String removeAccents(String value){
+        return value.replace(",", "");
+    }
 
     // funcion encargada de contar el numero de caracteres de las cantidades agrgandole el formato decimal
     public int espacioCantidades(float value) {
