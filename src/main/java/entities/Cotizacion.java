@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class Cotizacion {
     private DatosGeneralesCotizacion datosGenerales;
-    private List<DetallesCotizacion> detalles;
+    private List<Detalles> detalles;
     private Tienda tienda;
     private Totales totales;
 
@@ -24,11 +24,11 @@ public class Cotizacion {
         this.datosGenerales = datosGenerales;
     }
 
-    public List<DetallesCotizacion> getDetalles() {
+    public List<Detalles> getDetalles() {
         return detalles;
     }
 
-    public void setDetalles(List<DetallesCotizacion> detalles) {
+    public void setDetalles(List<Detalles> detalles) {
         this.detalles = detalles;
     }
 

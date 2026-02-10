@@ -14,7 +14,7 @@ import static domain.AjustesImpresion.texto;
 import domain.Impresora;
 import entities.Cotizacion;
 import entities.DatosGeneralesCotizacion;
-import entities.DetallesCotizacion;
+import entities.Detalles;
 import entities.Tienda;
 import entities.Totales;
 import httpHandle.PrinterConfig;
@@ -52,7 +52,7 @@ public class ImpresionCotizacion extends AjustesImpresion implements Impresora<C
 
     @Override
     public String imprimir(PrinterConfig impresora, Cotizacion cotizacion, boolean copias) {
-      List<DetallesCotizacion> detalles = cotizacion.getDetalles();
+      List<Detalles> detalles = cotizacion.getDetalles();
         Tienda tienda = cotizacion.getTienda();
         DatosGeneralesCotizacion datosGenerales = cotizacion.getDatosGenerales();
         Totales totales = cotizacion.getTotales();
@@ -132,11 +132,11 @@ public class ImpresionCotizacion extends AjustesImpresion implements Impresora<C
             print.writeLF(bold, "Total");
             // Detalles
             print.writeLF("*".repeat(papelAncho));
-            for (DetallesCotizacion detalle : detalles) {
-                print.writeLF(texto(detalle.getNombre()));
-                print.write(formatDecimal.format(detalle.getCantidad()));
+            for (Detalles detalle : detalles) {
+                print.writeLF(texto(detalle.getDescripcion()));
+                print.write(formatDecimal.format(detalle.getCantidadProducto()));
                 print.write(" x ");
-                print.write(formatDecimal.format(detalle.getPrecio()));
+                print.write(formatDecimal.format(detalle.getPrecioProducto()));
                 print.write(" = ");
                 print.write(detalle.getMonedaVenta().equals("Dolar") ? " $ " : " C$ ");
                 print.writeLF(formatDecimal.format(detalle.getImporte()));
