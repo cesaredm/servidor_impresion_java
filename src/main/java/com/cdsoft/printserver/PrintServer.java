@@ -5,7 +5,6 @@ package com.cdsoft.printserver;
 
 import java.util.logging.Level;
 import com.sun.net.httpserver.HttpServer;
-import com.sun.net.httpserver.HttpsConfigurator;
 import httpHandle.ConfigHandler;
 import httpHandle.PrintHandler;
 import httpHandle.PrinterConfig;
@@ -22,14 +21,11 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonInitException;
 import infra.Mdns;
 import java.security.NoSuchAlgorithmException;
-import com.sun.net.httpserver.HttpsServer;
 
 public class PrintServer implements Daemon {
 

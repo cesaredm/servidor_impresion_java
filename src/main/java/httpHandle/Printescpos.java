@@ -4,34 +4,13 @@ import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.EscPosConst;
 import com.github.anastaciocintra.escpos.PrintModeStyle;
 import com.github.anastaciocintra.escpos.Style;
-import com.github.anastaciocintra.escpos.image.Bitonal;
-import com.github.anastaciocintra.escpos.image.BitonalOrderedDither;
-import com.github.anastaciocintra.escpos.image.CoffeeImageImpl;
-import com.github.anastaciocintra.escpos.image.EscPosImage;
-import com.github.anastaciocintra.escpos.image.RasterBitImageWrapper;
 import com.github.anastaciocintra.output.PrinterOutputStream;
 import com.github.anastaciocintra.output.TcpIpOutputStream;
-import entities.Comanda;
-import entities.DatosGenerales;
-import entities.DatosGeneralesComanda;
-import entities.Detalles;
-import entities.Factura;
-import entities.Tienda;
-import entities.Totales;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ConnectException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.DecimalFormat;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import java.awt.Graphics2D;
-import java.awt.Image;
 
 /**
  *

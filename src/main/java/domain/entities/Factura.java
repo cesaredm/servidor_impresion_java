@@ -1,0 +1,22 @@
+package domain.entities;
+
+import java.util.List;
+
+public class Factura {
+    private DatosGenerales datosGenerales;
+    private List<Detalles> detalles;
+    private Tienda tienda;
+    private Totales totales;
+    private float tasaCambio;
+
+    public DatosGenerales getDatosGenerales() { return datosGenerales; }
+    public void setDatosGenerales(DatosGenerales datosGenerales) { this.datosGenerales = datosGenerales; }
+    public List<Detalles> getDetalles() { return detalles; }
+    public void setDetalles(List<Detalles> detalles) { this.detalles = detalles; }
+    public Tienda getTienda() { return tienda; }
+    public void setTienda(Tienda tienda) { this.tienda = tienda; }
+    public Totales getTotales() { return totales; }
+    public void setTotales(Totales totales) { this.totales = totales; }
+    public float getTasaCambio() { return tasaCambio; }
+    public void setTasaCambio(float tasaCambio) { this.tasaCambio = tasaCambio; }
+}
