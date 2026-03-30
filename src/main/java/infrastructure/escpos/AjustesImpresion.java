@@ -8,7 +8,6 @@ import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.EscPosConst;
 import com.github.anastaciocintra.escpos.PrintModeStyle;
 import com.github.anastaciocintra.escpos.Style;
-import httpHandle.Printescpos;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -27,7 +26,7 @@ import javax.imageio.ImageIO;
  */
 public abstract class AjustesImpresion {
 
-    protected final static Logger LOGGER = Logger.getLogger(Printescpos.class.getName());
+    protected final static Logger LOGGER = Logger.getLogger(ConfiguracionesImpresion.class.getName());
     protected EscPos print;
     protected int papelAncho = 48;
     protected final int anchoTitulos = "Cant".length() + "Precio".length() + "Total".length();

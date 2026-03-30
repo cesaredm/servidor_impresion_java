@@ -1,22 +1,21 @@
 package httpHandle.handlers;
 
+import com.cdsoft.printserver.PrintServer;
 import com.sun.net.httpserver.HttpExchange;
-import infrastructure.escpos.ConfiguracionesImpresion;
+import domain.PrinterConfig;
 import java.io.IOException;
 import java.util.Map;
-import domain.PrinterConfig;
 
-public class ImpresorasHandler extends BaseHandler {
+public class ConfigHandler extends BaseHandler {
 
-    public ImpresorasHandler(java.util.Map<String, PrinterConfig> printers) {
+    public ConfigHandler(java.util.Map<String, PrinterConfig> printers) {
         super(printers);
     }
 
     @Override
     protected void handleRequest(HttpExchange exchange) throws IOException {
-        sendResponse(exchange, 
-            Map.of("Impresoras", ConfiguracionesImpresion.listaImpresorasDisponibles()), 
-            200);
+        PrintServer.loadPrinterConfiguration();
+        sendResponse(exchange, Map.of("message", "Configuraciones de impresoras actualizado"), 200);
     }
 
     @Override

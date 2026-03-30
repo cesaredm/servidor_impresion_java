@@ -3,7 +3,7 @@ package httpHandle.handlers;
 import application.usecases.ImprimirComandaUseCase;
 import com.sun.net.httpserver.HttpExchange;
 import domain.entities.Comanda;
-import httpHandle.PrinterConfig;
+import domain.PrinterConfig;
 import httpHandle.util.DocumentParser;
 import infrastructure.escpos.ImprimirComanda;
 import java.io.IOException;
@@ -14,7 +14,7 @@ public class ComandaHandler extends BaseHandler {
 
     private final ImprimirComandaUseCase useCase;
 
-    public ComandaHandler(java.util.Map<String, httpHandle.PrinterConfig> printers) {
+    public ComandaHandler(Map<String, PrinterConfig> printers) {
         super(printers);
         this.useCase = new ImprimirComandaUseCase(new ImprimirComanda());
     }

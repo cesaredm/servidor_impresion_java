@@ -1,7 +1,7 @@
 package httpHandle.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
-import httpHandle.PrinterConfig;
+import domain.PrinterConfig;
 import java.io.IOException;
 import java.util.Map;
 

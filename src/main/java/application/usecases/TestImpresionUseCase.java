@@ -1,7 +1,7 @@
 package application.usecases;
 
 import domain.ports.out.ImpresoraPort;
-import httpHandle.PrinterConfig;
+import domain.PrinterConfig;
 
 public class TestImpresionUseCase {
 

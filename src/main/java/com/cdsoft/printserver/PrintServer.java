@@ -5,9 +5,9 @@ package com.cdsoft.printserver;
 
 import java.util.logging.Level;
 import com.sun.net.httpserver.HttpServer;
-import httpHandle.ConfigHandler;
+import httpHandle.handlers.ConfigHandler;
 import httpHandle.PrintHandler;
-import httpHandle.PrinterConfig;
+import domain.PrinterConfig;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -153,7 +153,7 @@ public class PrintServer implements Daemon {
         //server.setHttpsConfigurator(new HttpsConfigurator(sslContext));
         server.createContext("/print", new PrintHandler(printers));
         server.createContext("/impresoras", new PrintHandler(printers));
-        server.createContext("/recargar", new ConfigHandler());
+        server.createContext("/recargar", new ConfigHandler(printers));
         server.createContext("/comanda/print", new PrintHandler(printers));
         server.createContext("/cotizacion/print", new PrintHandler(printers));
         server.createContext("/pago/print", new PrintHandler(printers));

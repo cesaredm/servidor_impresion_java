@@ -3,7 +3,7 @@ package httpHandle.handlers;
 import application.usecases.ImprimirFacturaUseCase;
 import com.sun.net.httpserver.HttpExchange;
 import domain.entities.Factura;
-import httpHandle.PrinterConfig;
+import domain.PrinterConfig;
 import httpHandle.util.DocumentParser;
 import infrastructure.escpos.ImprimirFactura;
 import java.io.IOException;
@@ -14,7 +14,7 @@ public class FacturaHandler extends BaseHandler {
 
     private final ImprimirFacturaUseCase useCase;
 
-    public FacturaHandler(java.util.Map<String, httpHandle.PrinterConfig> printers) {
+    public FacturaHandler(Map<String, PrinterConfig> printers) {
         super(printers);
         this.useCase = new ImprimirFacturaUseCase(new ImprimirFactura());
     }

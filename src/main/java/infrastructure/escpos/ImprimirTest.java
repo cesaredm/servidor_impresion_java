@@ -2,7 +2,7 @@ package infrastructure.escpos;
 
 import com.github.anastaciocintra.escpos.EscPos;
 import domain.ports.out.ImpresoraPort;
-import httpHandle.PrinterConfig;
+import domain.PrinterConfig;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.util.logging.Level;

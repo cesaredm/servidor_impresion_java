@@ -14,7 +14,7 @@ import domain.entities.Detalles;
 import domain.entities.Tienda;
 import domain.entities.Totales;
 import domain.ports.out.ImpresoraPort;
-import httpHandle.PrinterConfig;
+import domain.PrinterConfig;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.ConnectException;

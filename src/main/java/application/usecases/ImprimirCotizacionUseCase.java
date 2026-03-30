@@ -2,7 +2,7 @@ package application.usecases;
 
 import domain.entities.Cotizacion;
 import domain.ports.out.ImpresoraPort;
-import httpHandle.PrinterConfig;
+import domain.PrinterConfig;
 
 public class ImprimirCotizacionUseCase {
 

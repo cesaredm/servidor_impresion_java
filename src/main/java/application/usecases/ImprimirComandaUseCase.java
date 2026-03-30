@@ -2,7 +2,7 @@ package application.usecases;
 
 import domain.entities.Comanda;
 import domain.ports.out.ImpresoraPort;
-import httpHandle.PrinterConfig;
+import domain.PrinterConfig;
 
 public class ImprimirComandaUseCase {
 

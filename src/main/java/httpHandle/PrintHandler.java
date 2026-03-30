@@ -7,6 +7,7 @@ import httpHandle.handlers.ImpresorasHandler;
 import httpHandle.handlers.NotFoundHandler;
 import httpHandle.handlers.PagoHandler;
 import httpHandle.handlers.TestHandler;
+import domain.PrinterConfig;
 import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Logger;

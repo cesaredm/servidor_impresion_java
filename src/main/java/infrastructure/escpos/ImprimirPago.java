@@ -11,7 +11,7 @@ import static infrastructure.escpos.AjustesImpresion.texto;
 import domain.entities.Pago;
 import domain.entities.Tienda;
 import domain.ports.out.ImpresoraPort;
-import httpHandle.PrinterConfig;
+import domain.PrinterConfig;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.ConnectException;

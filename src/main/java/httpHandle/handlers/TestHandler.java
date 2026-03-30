@@ -2,7 +2,7 @@ package httpHandle.handlers;
 
 import application.usecases.TestImpresionUseCase;
 import com.sun.net.httpserver.HttpExchange;
-import httpHandle.PrinterConfig;
+import domain.PrinterConfig;
 import infrastructure.escpos.ImprimirTest;
 import java.io.IOException;
 import java.util.Map;
@@ -12,7 +12,7 @@ public class TestHandler extends BaseHandler {
 
     private final TestImpresionUseCase useCase;
 
-    public TestHandler(java.util.Map<String, httpHandle.PrinterConfig> printers) {
+    public TestHandler(Map<String,PrinterConfig> printers) {
         super(printers);
         this.useCase = new TestImpresionUseCase(new ImprimirTest());
     }

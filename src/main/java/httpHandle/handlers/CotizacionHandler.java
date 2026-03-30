@@ -3,7 +3,7 @@ package httpHandle.handlers;
 import application.usecases.ImprimirCotizacionUseCase;
 import com.sun.net.httpserver.HttpExchange;
 import domain.entities.Cotizacion;
-import httpHandle.PrinterConfig;
+import domain.PrinterConfig;
 import httpHandle.util.DocumentParser;
 import infrastructure.escpos.ImprimirCotizacion;
 import java.io.IOException;
@@ -14,7 +14,7 @@ public class CotizacionHandler extends BaseHandler {
 
     private final ImprimirCotizacionUseCase useCase;
 
-    public CotizacionHandler(java.util.Map<String, httpHandle.PrinterConfig> printers) {
+    public CotizacionHandler(Map<String, PrinterConfig> printers) {
         super(printers);
         this.useCase = new ImprimirCotizacionUseCase(new ImprimirCotizacion());
     }

@@ -3,7 +3,7 @@ package httpHandle.handlers;
 import application.usecases.ImprimirPagoUseCase;
 import com.sun.net.httpserver.HttpExchange;
 import domain.entities.Pago;
-import httpHandle.PrinterConfig;
+import domain.PrinterConfig;
 import httpHandle.util.DocumentParser;
 import infrastructure.escpos.ImprimirPago;
 import java.io.IOException;
@@ -14,7 +14,7 @@ public class PagoHandler extends BaseHandler {
 
     private final ImprimirPagoUseCase useCase;
 
-    public PagoHandler(java.util.Map<String, httpHandle.PrinterConfig> printers) {
+    public PagoHandler(Map<String, PrinterConfig> printers) {
         super(printers);
         this.useCase = new ImprimirPagoUseCase(new ImprimirPago());
     }
