@@ -87,14 +87,14 @@ public class ImprimirFactura extends AjustesImpresion implements ImpresoraPort<F
             print.writeLF(String.valueOf(datosGenerales.getFactura()));
             print.write(campo, "Comprador: ");
             print.writeLF(texto(datosGenerales.getComprador()));
-            print.writeLF("*".repeat(papelAncho));
+            print.writeLF("=".repeat(papelAncho));
             print.write(bold, "Cant");
             print.write(espacioTresColumnas(papelAncho, anchoTitulos));
             print.write(bold, "Precio");
             print.write(espacioTresColumnas(papelAncho, anchoTitulos));
             print.writeLF(bold, "Total");
 
-            print.writeLF("*".repeat(papelAncho));
+            print.writeLF("=".repeat(papelAncho));
             for (Detalles detalle : detalles) {
                 print.writeLF(texto(detalle.getDescripcion()));
                 print.write(formatDecimal.format(detalle.getCantidadProducto()));

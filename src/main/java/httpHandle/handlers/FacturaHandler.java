@@ -6,6 +6,7 @@ import domain.entities.Factura;
 import domain.PrinterConfig;
 import httpHandle.util.DocumentParser;
 import infrastructure.escpos.ImprimirFactura;
+import infrastructure.escpos.ImprimirFacturaHtml;
 import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Level;
@@ -16,7 +17,7 @@ public class FacturaHandler extends BaseHandler {
 
     public FacturaHandler(Map<String, PrinterConfig> printers) {
         super(printers);
-        this.useCase = new ImprimirFacturaUseCase(new ImprimirFactura());
+        this.useCase = new ImprimirFacturaUseCase(new ImprimirFacturaHtml());
     }
 
     @Override

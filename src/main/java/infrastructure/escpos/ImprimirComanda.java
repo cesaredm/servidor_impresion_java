@@ -43,13 +43,13 @@ public class ImprimirComanda extends AjustesImpresion implements ImpresoraPort<C
                 print.writeLF(" " + texto(datosGenerales.getNota()));
             }
 
-            print.writeLF("-".repeat(papelAncho));
+            print.writeLF("=".repeat(papelAncho));
             print.write(bold, "Cant");
             print.write(espacioTresColumnas(papelAncho, anchoTitulos));
             print.write(bold, "Precio");
             print.write(espacioTresColumnas(papelAncho, anchoTitulos));
             print.writeLF(bold, "Total");
-            print.writeLF("-".repeat(papelAncho));
+            print.writeLF("=".repeat(papelAncho));
 
             for (Detalles detalle : detalles) {
                 print.writeLF(texto(detalle.getDescripcion()));
