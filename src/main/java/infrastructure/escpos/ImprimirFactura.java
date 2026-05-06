@@ -130,7 +130,7 @@ public class ImprimirFactura extends AjustesImpresion implements ImpresoraPort<F
             print.write(campo, "Total $");
             print.write(espacio(papelAncho, "Total $".length(), espacioCantidades(totales.getTotalDolares())));
             print.writeLF(bold, formatDecimal.format(totales.getTotalDolares()));
-            print.writeLF(bold, "TC/" + formatDecimal.format(factura.getTasaCambio()));
+            //print.writeLF(bold, "TC/" + formatDecimal.format(factura.getTasaCambio()));
 
             if (totales.getGlobalCordobas() > 0 && totales.getGlobalDolares() > 0) {
                 print.writeLF(tituloConLineaPunteada(" Globales ", papelAncho));
@@ -150,6 +150,11 @@ public class ImprimirFactura extends AjustesImpresion implements ImpresoraPort<F
                 print.writeLF(bold, formatDecimal.format(totales.getCambio()));
             }
 
+            if (!datosGenerales.getAnotaciones().equals("") && datosGenerales.getAnotaciones() != null) {
+                print.writeLF("-".repeat(papelAncho));
+                print.write(bold, "Nota: ");
+                print.writeLF(datosGenerales.getAnotaciones());
+            }
             print.writeLF("-".repeat(papelAncho));
             print.writeLF(nota, tienda.getNota());
             print.feed(1);

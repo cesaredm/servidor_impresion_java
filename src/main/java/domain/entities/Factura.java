@@ -19,4 +19,5 @@ public class Factura {
     public void setTotales(Totales totales) { this.totales = totales; }
     public float getTasaCambio() { return tasaCambio; }
     public void setTasaCambio(float tasaCambio) { this.tasaCambio = tasaCambio; }
+    
 }
