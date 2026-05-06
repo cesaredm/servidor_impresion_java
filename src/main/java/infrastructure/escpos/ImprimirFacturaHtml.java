@@ -90,7 +90,6 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 
 			// Cuando se cierre el servicio eliminara los documentos temporales creados anteriormene
 			// tempFile.deleteOnExit();
-
 			return "Exito";
 
 		} catch (Exception e) {
@@ -124,14 +123,14 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 
 		// INFO VENTA
 		sb.append("<section class='section-info'>");
-		sb.append("<div class='row'><span class='label'>FECHA:</span><span>").append(nullSafe(datos.getFecha())).append("</span></div>");
-		sb.append("<div class='row'><span class='label'>FACTURA:</span><span># ").append(datos.getFactura()).append("</span></div>");
+		sb.append("<div class='row'><span class='label'>FECHA:</span><span class='value'>").append(nullSafe(datos.getFecha())).append("</span></div>");
+		sb.append("<div class='row'><span class='label'>FACTURA:</span><span class='value'># ").append(datos.getFactura()).append("</span></div>");
 		if (!nullSafe(datos.getCliente()).equals("")) {
-			sb.append("<div class='row'><span class='label'>CLIENTE:</span><span class='bold'>").append(nullSafe(datos.getCliente())).append("</span></div>");
+			sb.append("<div class='row'><span class='label'>CLIENTE:</span><span class='bold value'>").append(nullSafe(datos.getCliente())).append("</span></div>");
 		}
-		sb.append("<div class='row'><span class='label'>VENTA:</span><span class='bold'>").append(nullSafe(datos.getTipoVenta())).append("</span></div>");
-		sb.append("<div class='row'><span class='label'>COMPRADOR:</span><span class='bold'>").append(nullSafe(datos.getComprador())).append("</span></div>");
-		sb.append("<div class='row'><span class='label'>ATENDIDO:</span><span class='bold'>Cajero# ").append(datos.getEmpleado()).append("</span></div>");
+		sb.append("<div class='row'><span class='label'>VENTA:</span><span class='bold value'>").append(nullSafe(datos.getTipoVenta())).append("</span></div>");
+		sb.append("<div class='row'><span class='label'>COMPRADOR:</span><span class='bold value'>").append(nullSafe(datos.getComprador())).append("</span></div>");
+		sb.append("<div class='row'><span class='label'>ATENDIDO:</span><span class='bold value'>Cajero# ").append(datos.getEmpleado()).append("</span></div>");
 		sb.append("</section>");
 
 		// TABLA DE DETALLES
@@ -240,168 +239,181 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 	}
 
 	private String getCssStyles() {
-		return "/* CSS 2.1 Compatible */\n"
-			+ "\n"
-			+ "* {\n"
-			+ "  font-size: 29px;\n"
-			+ "  font-family: Arial, sans-serif;\n"
-			+ "  margin: 0;\n"
-			+ "  padding: 0;\n"
-			+ "  box-sizing: border-box;\n"
-			+ "}\n"
-			+ "\n"
-			+ "/*----------------------------------------*/\n"
-			+ "\n"
-			+ ".header {\n"
-			+ "    text-align: center;\n"
-			+ "    margin-bottom: 15px;\n"
-			+ "    display: block;\n"
-			+ "}\n"
-			+ "\n"
-			+ ".bold {\n"
-			+ "    font-weight: bold;\n"
-			+ "}\n"
-			+ "\n"
-			+ ".title-bold {\n"
-			+ "    font-size: 36px;\n"
-			+ "    font-weight: bold;\n"
-			+ "    margin: 0;\n"
-			+ "    display: block;\n"
-			+ "}\n"
-			+ "\n"
-			+ ".header-info p {\n"
-			+ "    margin: 2px 0;\n"
-			+ "    font-size: 28px;\n"
-			+ "}\n"
-			+ "\n"
-			+ ".section-info {\n"
-			+ "    margin-bottom: 10px;\n"
-			+ "    display: block;\n"
-			+ "    clear: both;\n"
-			+ "}\n"
-			+ "\n"
-			+ "/* Reemplazo de Flexbox por Floats */\n"
-			+ ".row, .row-item, .table-header {\n"
-			+ "    width: 100%;\n"
-			+ "    margin-bottom: 2px;\n"
-			+ "    display: block;\n"
-			+ "    clear: both;\n"
-			+ "    overflow: hidden;\n"
-			+ "}\n"
-			+ "\n"
-			+ ".row-item td.label {\n"
-			+ "    float: left;\n"
-			+ "    text-align: left;\n"
-			+ "    width: 170px;\n"
-			+ "}\n"
-			+ "\n"
-			+ ".row-item td.value {\n"
-			+ "    float: right;\n"
-			+ "    text-align: right;\n"
-			+ "    width: 406px;\n"
-			+ "}\n"
-			+ "\n"
-			+ ".row-item.totales-row td.label,\n"
-			+ ".row-item.totales-row td.value {\n"
-			+ "    font-weight: bold;\n"
-			+ "    font-size: 32px;\n"
-			+ "}\n"
-			+ "\n"
-			+ "/* En CSS 2.1 justify-content: space-between se hace con floats opuestos */\n"
-			+ ".row span:first-child, .label {\n"
-			+ "    float: left;\n"
-			+ "    width: 27mm;\n"
-			+ "    text-align: left;\n"
-			+ "}\n"
-			+ "\n"
-			+ "/*----------------------------------------*/\n"
-			+ "\n"
-			+ ".border-globales {\n"
-			+ "    border: 3px dotted black;\n"
-			+ "}\n"
-			+ "\n"
-			+ ".centered {\n"
-			+ "    text-align: center;\n"
-			+ "    display: block;\n"
-			+ "}\n"
-			+ "\n"
-			+ "/* Reemplazo de Grid para centrar */\n"
-			+ ".centered img {\n"
-			+ "    margin-left: auto;\n"
-			+ "    margin-right: auto;\n"
-			+ "    display: block;\n"
-			+ "}\n"
-			+ "\n"
-			+ ".both_border {\n"
-			+ "    border-top: 2px solid black;\n"
-			+ "    border-bottom: 2px solid black;\n"
-			+ "}\n"
-			+ "\n"
-			+ "/* Estilos de Tabla Tradicional */\n"
-			+ "table {\n"
-			+ "    width: 100%;\n"
-			+ "    border-collapse: collapse;\n"
-			+ "}\n"
-			+ "\n"
-			+ "table tr td {\n"
-			+ "    font-size: 30px;\n"
-			+ "}\n"
-			+ "td.description,\n"
-			+ "th.description {\n"
-			+ "    width: 100%;\n"
-			+ "    text-align: left;\n"
-			+ "    padding: 4px;\n"
-			+ "}\n"
-			+ "\n"
-			+ "td.quantity,\n"
-			+ "th.quantity {\n"
-			+ "    width: 150px;\n"
-			+ "    text-align: center;\n"
-			+ "}\n"
-			+ "\n"
-			+ "td.price,\n"
-			+ "th.price {\n"
-			+ "    width: 200px;\n"
-			+ "    text-align: right;\n"
-			+ "}\n"
-			+ "\n"
-			+ "td.importe,\n"
-			+ "th.importe {\n"
-			+ "    width: 227px;\n"
-			+ "    text-align: right;\n"
-			+ "}\n"
-			+ "\n"
-			+ "td.totales {\n"
-			+ "    font-size: 32px;\n"
-			+ "    font-weight: bold;\n"
-			+ "}\n"
-			+ ".globales {\n"
-			+ "    margin-top: 10px;\n"
-			+ "    margin-bottom: 10px;\n"
-			+ "    font-size: 30px;\n"
-			+ "    text-align: center;\n"
-			+ "}\n"
-			+ ".globales p{\n"
-			+ "    font-weight: bold;\n"
-			+ "}\n"
-			+ "\n"
-			+ ".border-doble-top {\n"
-			+ "    border-top: 2px solid black;\n"
-			+ "}\n"
-			+ "\n"
-			+ ".border-doble-bottom {\n"
-			+ "    border-bottom: 2px solid black;\n"
-			+ "}\n"
-			+ "\n"
-			+ ".nota {\n"
-			+ "    border-bottom: 1px solid black;\n"
-			+ "    padding: 10px 0;\n"
-			+ "    display: block;\n"
-			+ "    clear: both;\n"
-			+ "}\n"
-			+ "small {\n"
-			+ "    font-size: 10px;\n"
-			+ "}\n";
+		return """
+					 /* CSS 2.1 Compatible */
+					 
+					 * {
+					   font-size: 29px;
+					   font-family: Arial, sans-serif;
+					   margin: 0;
+					   padding: 0;
+					   box-sizing: border-box;
+					 }
+					 
+					 .header {
+					     text-align: center;
+					     margin-bottom: 15px;
+					     display: block;
+					 }
+					 
+					 .bold {
+					     font-weight: bold;
+					 }
+					 
+					 .title-bold {
+					     font-size: 36px;
+					     font-weight: bold;
+					     margin: 0;
+					     display: block;
+					 }
+					 
+					 .header-info p {
+					     margin: 2px 0;
+					     font-size: 28px;
+					 }
+					 
+					 .section-info {
+					     margin-bottom: 10px;
+					     display: block;
+					     clear: both;
+					 }
+					 
+					 /* Reemplazo de Flexbox por Floats */
+					 .row, .row-item, .table-header {
+					     width: 100%;
+					     margin-bottom: 2px;
+					     display: block;
+					     clear: both;
+					     overflow: hidden;
+					 }
+					 
+					 .row-item td.label {
+					     float: left;
+					     text-align: left;
+					     width: 170px;
+					 }
+					 
+					 .row-item td.value {
+					     float: right;
+					     text-align: right;
+					     width: 406px;
+					 }
+					 
+					 .row-item.totales-row td.label,
+					 .row-item.totales-row td.value {
+					     font-weight: bold;
+					     font-size: 32px;
+					 }
+					 
+					 /* En CSS 2.1 justify-content: space-between se hace con floats opuestos */
+					 .row span:first-child, .label {
+					     float: left;
+					     width: 27mm;
+					     text-align: left;
+					 }
+         
+           .row span:last-child, .value {
+               float: right;
+               text-align: right;
+               word-wrap: break-word;
+           }
+					 
+					 /*----------------------------------------*/
+					 
+					 .border-globales {
+					     border: 3px dotted black;
+					 }
+					 
+					 .centered {
+					     text-align: center;
+					     display: block;
+					 }
+					 
+					 /* Reemplazo de Grid para centrar */
+					 .centered img {
+					     margin-left: auto;
+					     margin-right: auto;
+					     display: block;
+					 }
+					 
+					 .both_border {
+					     border-top: 2px solid black;
+					     border-bottom: 2px solid black;
+					 }
+					 
+					 /* Estilos de Tabla Tradicional */
+					 table {
+					     width: 100%;
+					     border-collapse: collapse;
+					 }
+					 
+					 table tr td {
+					     font-size: 30px;
+					 }
+					 td.description,
+					 th.description {
+					     width: 100%;
+					     text-align: left;
+					     padding: 4px;
+					 }
+					 
+					 td.quantity,
+					 th.quantity {
+					     width: 150px;
+					     text-align: center;
+					 }
+					 
+					 td.price,
+					 th.price {
+					     width: 200px;
+					     text-align: right;
+					 }
+					 
+					 td.importe,
+					 th.importe {
+					     width: 227px;
+					     text-align: right;
+					 }
+					 
+					 td.totales {
+					     font-size: 32px;
+					     font-weight: bold;
+					 }
+
+					 .globales {
+					     margin-top: 10px;
+					     margin-bottom: 10px;
+					     font-size: 30px;
+					     text-align: center;
+					 }
+
+					 .globales p{
+					     font-weight: bold;
+					 }
+					 
+					 .border-doble-top {
+					     border-top: 2px solid black;
+					 }
+					 
+					 .border-doble-bottom {
+					     border-bottom: 2px solid black;
+					 }
+					 
+					 .border-item {
+					     border-bottom: 1px solid black;
+					 }
+					 
+					 .nota {
+					     border-bottom: 1px solid black;
+					     padding: 10px 0;
+					     display: block;
+					     clear: both;
+					 }
+
+					 small {
+					     font-size: 10px;
+					 }
+					 """;
 	}
 
 	private String nullSafe(String valor) {
