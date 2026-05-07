@@ -32,6 +32,7 @@ E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\esc
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\escpos\ConfiguracionesImpresion.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\escpos\EscposConnectionFactory.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\escpos\ImprimirComanda.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\escpos\ImprimirComandaHtml.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\escpos\ImprimirCotizacion.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\escpos\ImprimirFactura.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\escpos\ImprimirFacturaHtml.java

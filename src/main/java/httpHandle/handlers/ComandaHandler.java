@@ -6,6 +6,7 @@ import domain.entities.Comanda;
 import domain.PrinterConfig;
 import httpHandle.util.DocumentParser;
 import infrastructure.escpos.ImprimirComanda;
+import infrastructure.escpos.ImprimirComandaHtml;
 import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Level;
@@ -16,7 +17,7 @@ public class ComandaHandler extends BaseHandler {
 
     public ComandaHandler(Map<String, PrinterConfig> printers) {
         super(printers);
-        this.useCase = new ImprimirComandaUseCase(new ImprimirComanda());
+        this.useCase = new ImprimirComandaUseCase(new ImprimirComandaHtml());
     }
 
     @Override

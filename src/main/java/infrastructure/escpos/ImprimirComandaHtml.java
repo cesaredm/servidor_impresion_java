@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package infrastructure.escpos;
 
 import com.github.anastaciocintra.escpos.EscPos;
@@ -8,9 +12,10 @@ import com.github.anastaciocintra.escpos.image.CoffeeImageImpl;
 import com.github.anastaciocintra.escpos.image.EscPosImage;
 import com.github.anastaciocintra.escpos.image.RasterBitImageWrapper;
 import domain.PrinterConfig;
+import domain.entities.Comanda;
 import domain.entities.DatosGenerales;
+import domain.entities.DatosGeneralesComanda;
 import domain.entities.Detalles;
-import domain.entities.Factura;
 import domain.entities.Tienda;
 import domain.entities.Totales;
 import domain.ports.out.ImpresoraPort;
@@ -23,34 +28,29 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.xhtmlrenderer.swing.Java2DRenderer;
 
-public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPort<Factura> {
+/**
+ *
+ * @author cesar
+ */
+public class ImprimirComandaHtml extends AjustesImpresion implements ImpresoraPort<Comanda> {
 
 	private final EscposConnectionFactory connectionFactory;
 	private final DecimalFormat formatDecimal = new DecimalFormat("###,###,###,##0.00");
 	private static final Logger LOGGER = Logger.getLogger(ImprimirFacturaHtml.class.getName());
 
-	public ImprimirFacturaHtml() {
+	public ImprimirComandaHtml() {
 		this.connectionFactory = new EscposConnectionFactory();
 	}
 
 	@Override
-	public String imprimir(PrinterConfig config, Factura factura, boolean copias) {
+	public String imprimir(PrinterConfig config, Comanda comanda, boolean copias) {
 		try (EscPos escpos = connectionFactory.crearConexion(config, config.getTipoConexion())) {
 
 			BufferedImage bufferedImage;
 			papelAncho = config.getPapelSize() * 12;
 
 			/* Generar documento HTML*/
-			String htmlCompleto = generarHtmlFactura(factura);
-
-			/* Obtener logo bien desde online o local */
-			String urlImagen = "https://api.cdsoft.net/uploads/logos/" + factura.getTienda().getLogo();
-			if (config.getLogo() != null) {
-				bufferedImage = obtenerImagenLocal(config.getLogo());
-			} else {
-				bufferedImage = obtenerImagenDeUrl(urlImagen);
-			}
-
+			String htmlCompleto = generarHtmlComanda(comanda);
 			/* Creamos el archivo temporal en /user/AppData/Local/temp/ */
 			File tempFile = File.createTempFile("factura_", ".html");
 			try (FileWriter writer = new FileWriter(tempFile)) {
@@ -74,20 +74,13 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 				parametro 170 y 128 son la profundida de bits afecta los como se ven los colores intermedios
 			 */
 			Bitonal algorithm = new BitonalOrderedDither(3, 3, 128, 170);
-			Bitonal algorithmLogo = new BitonalOrderedDither(3, 3, 50, 200);
-			BufferedImage resizeImage = resizeImage(bufferedImage, 290);
-
 			EscPosImage escposImage = new EscPosImage(new CoffeeImageImpl(imagen), algorithm);
-			EscPosImage escposImageLogo = new EscPosImage(new CoffeeImageImpl(resizeImage), algorithmLogo);
 
-			RasterBitImageWrapper facturaWrapper = new RasterBitImageWrapper().setJustification(EscPosConst.Justification.Center);
-			RasterBitImageWrapper imageWrapperLogo = new RasterBitImageWrapper().setJustification(EscPosConst.Justification.Center);
+			RasterBitImageWrapper comandaWrapper = new RasterBitImageWrapper().setJustification(EscPosConst.Justification.Center);
 
-			/* Comanda para abrir caja */
-			escpos.write((char) 27 + (char) 112 + (char) 0 + (char) 10 + (char) 100);
-			escpos.write(imageWrapperLogo, escposImageLogo).feed(1);
-			escpos.write(facturaWrapper, escposImage);
+			escpos.write(comandaWrapper, escposImage);
 			escpos.feed(4);
+			escpos.writeLF(" ");
 			escpos.cut(EscPos.CutMode.FULL);
 
 			// Cuando se cierre el servicio eliminara los documentos temporales creados anteriormene
@@ -95,17 +88,14 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 			return "Exito";
 
 		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, "Error al imprimir factura HTML", e);
+			LOGGER.log(Level.SEVERE, "Error al imprimir comanda HTML", e);
 			return "Error: " + e.getMessage();
 		}
 	}
 
-	private String generarHtmlFactura(Factura factura) {
-		Tienda tienda = factura.getTienda();
-		DatosGenerales datos = factura.getDatosGenerales();
-		Totales totales = factura.getTotales();
-		List<Detalles>
-		detalles = factura.getDetalles();
+	private String generarHtmlComanda(Comanda comanda) {
+		List<Detalles> detalles = comanda.getDetalles();
+		DatosGeneralesComanda datos = comanda.getDatosGenerales();
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("<!DOCTYPE html>");
@@ -114,26 +104,16 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 		sb.append(getCssStyles());
 		sb.append("</style></head><body>");
 
-		// HEADER
-		sb.append("<header class='header'>");
-		sb.append("<h1 class='title-bold'>").append(nullSafe(tienda.getNombre())).append("</h1>");
-		sb.append("<div class='header-info'>");
-		sb.append("<p>Nº Ruc: ").append(nullSafe(tienda.getRut())).append("</p>");
-		sb.append("<p>").append(nullSafe(tienda.getDireccion())).append("</p>");
-		sb.append("<p>Teléfono: ").append(nullSafe(tienda.getTelefono())).append("</p>");
-		sb.append("</div>");
-		sb.append("</header>");
-
 		// INFO VENTA
 		sb.append("<section class='section-info'>");
-		sb.append("<div class='row'><span class='label'>FECHA:</span><span class='value'>").append(nullSafe(datos.getFecha())).append("</span></div>");
-		sb.append("<div class='row'><span class='label'>FACTURA:</span><span class='value'># ").append(datos.getFactura()).append("</span></div>");
-		if (!nullSafe(datos.getCliente()).equals("")) {
-			sb.append("<div class='row'><span class='label'>CLIENTE:</span><span class='bold value'>").append(nullSafe(datos.getCliente())).append("</span></div>");
+		sb.append("<div class=''><span class='bold'>Id: </span><span class=''>").append(datos.getId()).append("</span></div>");
+		sb.append("<div class=''><span class='bold'>Fecha: </span><span class=''>").append(nullSafe(datos.getFecha())).append("</span></div>");
+		
+		sb.append("<div class=''><span class='bold'>Atendido por: </span><span class='bold'># ").append(String.valueOf(datos.getEmpleado())).append(" ").append(nullSafe(datos.getUsuario())).append("</span></div>");
+		sb.append("<div class=''><span class='bold'>Comprador: </span><span class='bold'>").append(nullSafe(datos.getComprador())).append("</span></div>");
+		if(!nullSafe(datos.getNota()).equals("")){
+			sb.append("<div class='nota'><span class='bold'>Nota: </span><span class=''>").append(nullSafe(datos.getNota())).append("</span></div>");
 		}
-		sb.append("<div class='row'><span class='label'>VENTA:</span><span class='bold value'>").append(nullSafe(datos.getTipoVenta())).append("</span></div>");
-		sb.append("<div class='row'><span class='label'>COMPRADOR:</span><span class='bold value'>").append(nullSafe(datos.getComprador())).append("</span></div>");
-		sb.append("<div class='row'><span class='label'>ATENDIDO:</span><span class='bold value'>Cajero# ").append(datos.getEmpleado()).append("</span></div>");
 		sb.append("</section>");
 
 		// TABLA DE DETALLES
@@ -183,7 +163,7 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 		sb.append("</table>");
 
 		// TOTALES
-		sb.append("<div class='border-doble-top'></div>");
+		/*sb.append("<div class='border-doble-top'></div>");
 		sb.append("<table>");
 
 		if (totales.getDescuentoCordobas() > 0) {
@@ -204,39 +184,7 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 		if (totales.getTotalDolares() > 0) {
 			sb.append("<tr class='row-item totales-row'><td class='label totales'>Total</td><td class='value totales'>").append("$ ").append(formatDecimal.format(totales.getTotalDolares())).append("</td></tr>");
 		}
-
-		sb.append("</table>");
-
-		// GLOBALES
-		if (totales.getGlobalCordobas() > 0 && totales.getGlobalDolares() > 0) {
-			sb.append("<div class='border-doble-top'></div>");
-			sb.append("<div class='border-globales centered globales'>");
-			sb.append("<p class='bold'>Globales: </p>");
-			sb.append("<p class='bold'>C$ ").append(formatDecimal.format(totales.getGlobalCordobas()));
-			sb.append(" - $ ").append(formatDecimal.format(totales.getGlobalDolares()));
-			sb.append("</p>");
-			sb.append("</div>");
-		}
-
-		// CAMBIO
-		if (totales.getDolaresRecibidos() > 0 || totales.getCordobasRecibidos() > 0) {
-			sb.append("<div class='border-doble-top'></div>");
-			sb.append("<table>");
-			sb.append("<tr class='row-item'><td class='label'>Recibido C$</td><td class='value'>").append(formatDecimal.format(totales.getCordobasRecibidos())).append("</td></tr>");
-			sb.append("<tr class='row-item'><td class='label'>Recibido $</td><td class='value'>").append(formatDecimal.format(totales.getDolaresRecibidos())).append("</td></tr>");
-			sb.append("<tr class='row-item totales-row'><td class='label bold'>Cambio C$</td><td class='value bold'>").append(formatDecimal.format(totales.getCambio())).append("</td></tr>");
-			sb.append("</table>");
-		}
-
-		if (!nullSafe(factura.getDatosGenerales().getAnotaciones()).equals("")) {
-			sb.append("<div class='border-doble-top'></div>");
-			sb.append("<div class='nota'>");
-			sb.append("<span class='bold'>Nota: </span>").append(nullSafe(factura.getDatosGenerales().getAnotaciones()));
-			sb.append("</div>");
-		}
-		sb.append("<div class='border-doble-top'></div>");
-		sb.append("<div class='centered'>").append(nullSafe(tienda.getNota())).append("</div>");
-
+		sb.append("</table>");*/
 		sb.append("</body></html>");
 		return sb.toString();
 	}
@@ -407,10 +355,9 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 					 }
 					 
 					 .nota {
-					     border-bottom: 1px solid black;
-					     padding: 10px 0;
-					     display: block;
-					     clear: both;
+              border: 3px dotted black;
+              padding: 8px;
+              margin: 3px 0px;
 					 }
 
 					 small {

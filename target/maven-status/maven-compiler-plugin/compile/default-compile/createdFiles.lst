@@ -27,6 +27,7 @@ domain\entities\DatosGeneralesComanda.class
 application\usecases\ImprimirFacturaUseCase.class
 application\usecases\ImprimirPagoUseCase.class
 httpHandle\PrintHandler.class
+infrastructure\escpos\ImprimirComandaHtml.class
 infrastructure\escpos\ImprimirPago.class
 infrastructure\escpos\ImprimirCotizacion.class
 httpHandle\handlers\ConfigHandler.class
