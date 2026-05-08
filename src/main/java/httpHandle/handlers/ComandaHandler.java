@@ -3,7 +3,7 @@ package httpHandle.handlers;
 import application.usecases.ImprimirComandaUseCase;
 import com.sun.net.httpserver.HttpExchange;
 import domain.entities.Comanda;
-import domain.PrinterConfig;
+import domain.entities.PrinterConfig;
 import httpHandle.util.DocumentParser;
 import infrastructure.escpos.ImprimirComanda;
 import infrastructure.escpos.ImprimirComandaHtml;

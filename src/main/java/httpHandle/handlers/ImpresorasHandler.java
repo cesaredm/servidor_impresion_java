@@ -4,7 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 import infrastructure.escpos.ConfiguracionesImpresion;
 import java.io.IOException;
 import java.util.Map;
-import domain.PrinterConfig;
+import domain.entities.PrinterConfig;
 
 public class ImpresorasHandler extends BaseHandler {
 

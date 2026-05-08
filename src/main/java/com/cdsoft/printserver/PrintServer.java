@@ -3,15 +3,19 @@
  */
 package com.cdsoft.printserver;
 
-import java.util.logging.Level;
 import com.sun.net.httpserver.HttpServer;
-import httpHandle.handlers.ConfigHandler;
+import domain.entities.PrinterConfig;
 import httpHandle.PrintHandler;
-import domain.PrinterConfig;
+import httpHandle.handlers.ConfigHandler;
+import httpHandle.handlers.PrinterNetworkHandler;
+import infra.Mdns;
+import infrastructure.PrinterConfigProperties;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -20,18 +24,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonInitException;
-import infra.Mdns;
-import java.security.NoSuchAlgorithmException;
 
 public class PrintServer implements Daemon {
 
     private static final Logger LOGGER = Logger.getLogger(PrintServer.class.getName());
-    private static final String USER_PATH = System.getProperty("user.home");
+    
     private static final String CONFIG_FILE = "C:\\impresorasConfig\\printers.properties";
+    
     private static final int SERVER_PORT = 8088;
     private static final Map<String, PrinterConfig> printers = new HashMap<>();
     private static HttpServer server;
@@ -55,7 +60,6 @@ public class PrintServer implements Daemon {
     @Override
     public void stop() throws Exception {
         if (server != null) {
-            //server.stop(0);
             stopServer();
             Mdns.detenerMdns();
             LOGGER.info("Servidor detenido");
@@ -70,87 +74,32 @@ public class PrintServer implements Daemon {
     }
 
     public static void loadPrinterConfiguration() throws IOException {
-        Properties props = new Properties();
-        try (InputStream input = new FileInputStream(CONFIG_FILE)) {
-            props.load(input);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "No se pudo cargar el archivo de configuración: " + CONFIG_FILE, e);
-            throw e; // Relanzar para detener el inicio si no hay config
-        }
+        // ------------------------------------------------------------------
+        // CÓDIGO ANTERIOR (comentado para referencia)
+        // ------------------------------------------------------------------
+        // Se muevió la lógica de parseo al Singleton infrastructure.PrinterConfigProperties
+        // ------------------------------------------------------------------
 
-        // Agrupar propiedades por nombre de impresora
-        Map<String, Map<String, String>> printerPropsByName = new HashMap<>();
-        for (String key : props.stringPropertyNames()) {
-            String[] parts = key.split("\\.", 2);
-            if (parts.length == 2) {
-                String printerName = parts[0];
-                String propName = parts[1];
-                /*
-                    Cuando procesamos la primera propiedad de una impresora (digamos "cocina.ip"), printerName es "cocina".
-                    computeIfAbsent busca "cocina" en printerPropsByName. Como es la primera vez, no la encuentra.
-                    Ejecuta k -> new HashMap<>(), lo que crea un nuevo HashMap vacío.
-                    Inserta ("cocina", nuevoHashMapVacio) en printerPropsByName.
-                    Devuelve nuevoHashMapVacio.
-                
-                    Esto significa: "En el mapa interno que computeIfAbsent me devolvió, añade la propiedad actual".
-
-                    Siguiendo el ejemplo de "cocina.ip": computeIfAbsent devolvió el nuevoHashMapVacio. La llamada .put("ip", "192.168.1.100") se ejecuta sobre ese nuevo mapa. Ahora el mapa interno para "cocina" contiene {"ip": "192.168.1.100"}.
-                    Cuando luego procesamos "cocina.port", printerName es "cocina" de nuevo.
-                    computeIfAbsent busca "cocina". Esta vez sí la encuentra.
-                    Devuelve el mapa interno que ya existe (el que ahora contiene {"ip": "192.168.1.100"}).
-                    La llamada encadenada .put("port", "9100") se ejecuta sobre ese mapa existente. Ahora el mapa interno para "cocina" contiene {"ip": "192.168.1.100", "port": "9100"}.
-                 */
-                printerPropsByName.computeIfAbsent(printerName, k -> new HashMap<>())
-                        .put(propName, props.getProperty(key));
-            }
-        }
-
-        // Crear objetos PrinterConfig
-        printers.clear(); // Limpiar configuraciones previas si se recarga
-        for (Map.Entry<String, Map<String, String>> entry : printerPropsByName.entrySet()) {
-            String name = entry.getKey();
-            Map<String, String> properties = entry.getValue();
-            String ip = properties.get("ip");
-            String portStr = properties.get("port");
-            String copias = properties.get("copias");
-            String logo = properties.get("logo");
-            String papelSize = properties.get("papelSize");
-            String tipoConexion = properties.get("tipoConexion");
-            
-            if (Objects.isNull(papelSize)) papelSize = "48";
-            if(Objects.isNull(tipoConexion)) tipoConexion = "red";
-
-            if (ip != null && !ip.isEmpty() && portStr != null && !portStr.isEmpty()) {
-                try {
-                    int port = Integer.parseInt(portStr);
-                    PrinterConfig config = new PrinterConfig(name, ip, logo, port, Integer.parseInt(copias), Integer.parseInt(papelSize), tipoConexion);
-                    printers.put(name, config);
-                    LOGGER.log(Level.INFO, "Impresora cargada: {0}", config.toString());
-                } catch (NumberFormatException e) {
-                    LOGGER.log(Level.WARNING, "Puerto inválido para la impresora {0}: {1}", new Object[]{name, portStr});
-                }
-            } else {
-                LOGGER.log(Level.WARNING, "Configuración incompleta para la impresora: {0}", name);
-            }
-        }
+        // NUEVA IMPLEMENTACIÓN: Usar el Singleton centralizado
+        PrinterConfigProperties configProps = PrinterConfigProperties.getInstance();
+        
+        // Recargar desde disco para obtener la versión más reciente
+        configProps.loadProperties();
+        
+        // Delegar la carga y construcción de objetos al Singleton
+        printers.putAll(configProps.getAllPrinterConfigs());
 
         if (printers.isEmpty()) {
             LOGGER.log(Level.WARNING, "No se cargó ninguna configuración de impresora válida.");
         }
     }
 
+    // Mantener el resto del código original sin cambios...
     public static void startServer() throws IOException, NoSuchAlgorithmException {
         
-        /*SSLContext sslContext = SSLContext.getInstance("TLS");
-        try {
-            KeyManagerFactory kmf = Mdns.getCertificado();
-            sslContext.init(kmf.getKeyManagers(), null, null);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error de certificado");
-        }*/
-         HttpServer server = HttpServer.create(new InetSocketAddress(SERVER_PORT), 0);
-        //HttpsServer server = HttpsServer.create(new InetSocketAddress(SERVER_PORT), 0);
-        //server.setHttpsConfigurator(new HttpsConfigurator(sslContext));
+        HttpServer server = HttpServer.create(new InetSocketAddress(SERVER_PORT), 0);
+        
+        // ... rutas ...
         server.createContext("/print", new PrintHandler(printers));
         server.createContext("/impresoras", new PrintHandler(printers));
         server.createContext("/recargar", new ConfigHandler(printers));
@@ -158,15 +107,16 @@ public class PrintServer implements Daemon {
         server.createContext("/cotizacion/print", new PrintHandler(printers));
         server.createContext("/pago/print", new PrintHandler(printers));
         server.createContext("/prueba", new PrintHandler(printers));
+        server.createContext("/printers", new PrinterNetworkHandler(printers));
+        server.createContext("/printers/discover", new PrinterNetworkHandler(printers));
+        server.createContext("/printers/ping", new PrinterNetworkHandler(printers));
 
-        //executor = Executors.newCachedThreadPool();
         executor = new ThreadPoolExecutor(
-                2, //core pool size : siempre al menos 2 hilos
-                10, // maximo pool size
+                2,
+                10,
                 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>()
         );
-        //server.setExecutor(Executors.newCachedThreadPool());
         server.setExecutor(executor);
         server.start();
         LOGGER.log(Level.INFO, "Servidor de impresión iniciado en el puerto {0}", SERVER_PORT);
@@ -178,11 +128,9 @@ public class PrintServer implements Daemon {
             LOGGER.log(Level.INFO, "Iniciando la detención del servidor de impresión");
 
             try {
-                // Detener el servidor
                 server.stop(1);
                 LOGGER.log(Level.INFO, "Servidor detenido correctamente.");
 
-                // Apagar el executor si está activo
                 if (executor != null && !executor.isShutdown()) {
                     LOGGER.log(Level.INFO, "Cerrando el pool de hilos...");
                     executor.shutdown();
@@ -198,10 +146,9 @@ public class PrintServer implements Daemon {
                 }
             } catch (InterruptedException e) {
                 LOGGER.log(Level.WARNING, "La interrupción en el hilo principal forzó el cierre del pool.", e);
-                executor.shutdownNow(); // Cierre forzado en caso de interrupción
-                Thread.currentThread().interrupt(); // Restablece el flag de interrupción
+                executor.shutdownNow();
+                Thread.currentThread().interrupt();
             } finally {
-                // Salir de la JVM después de cerrar todo
                 LOGGER.log(Level.INFO, "Detención completa. Saliendo del sistema...");
                 System.exit(0);
             }
@@ -210,7 +157,6 @@ public class PrintServer implements Daemon {
         }
     }
 
-    // Método main para pruebas manuales
     public static void main(String[] args) {
         PrintServer serverPrint = new PrintServer();
         try {

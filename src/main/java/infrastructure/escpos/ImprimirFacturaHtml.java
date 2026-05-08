@@ -7,7 +7,7 @@ import com.github.anastaciocintra.escpos.image.BitonalOrderedDither;
 import com.github.anastaciocintra.escpos.image.CoffeeImageImpl;
 import com.github.anastaciocintra.escpos.image.EscPosImage;
 import com.github.anastaciocintra.escpos.image.RasterBitImageWrapper;
-import domain.PrinterConfig;
+import domain.entities.PrinterConfig;
 import domain.entities.DatosGenerales;
 import domain.entities.Detalles;
 import domain.entities.Factura;
@@ -82,9 +82,9 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 
 			RasterBitImageWrapper facturaWrapper = new RasterBitImageWrapper().setJustification(EscPosConst.Justification.Center);
 			RasterBitImageWrapper imageWrapperLogo = new RasterBitImageWrapper().setJustification(EscPosConst.Justification.Center);
-
-			/* Comanda para abrir caja */
-			escpos.write((char) 27 + (char) 112 + (char) 0 + (char) 10 + (char) 100);
+			
+			//Abrir caja registradora
+			escpos.pulsePin(EscPos.PinConnector.Pin_2, 10, 100);
 			escpos.write(imageWrapperLogo, escposImageLogo).feed(1);
 			escpos.write(facturaWrapper, escposImage);
 			escpos.feed(4);
@@ -104,8 +104,7 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 		Tienda tienda = factura.getTienda();
 		DatosGenerales datos = factura.getDatosGenerales();
 		Totales totales = factura.getTotales();
-		List<Detalles>
-		detalles = factura.getDetalles();
+		List<Detalles> detalles = factura.getDetalles();
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("<!DOCTYPE html>");

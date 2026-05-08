@@ -13,7 +13,7 @@ import domain.entities.Factura;
 import domain.entities.Tienda;
 import domain.entities.Totales;
 import domain.ports.out.ImpresoraPort;
-import domain.PrinterConfig;
+import domain.entities.PrinterConfig;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.ConnectException;
@@ -51,8 +51,9 @@ public class ImprimirFactura extends AjustesImpresion implements ImpresoraPort<F
 				EscPosImage escposImage = new EscPosImage(new CoffeeImageImpl(resizeImage), algorithm);
 
 				RasterBitImageWrapper imageWrapper = new RasterBitImageWrapper().setJustification(EscPosConst.Justification.Center);
-				/* Comanda para abrir caja */
-				print.write((char) 27 + (char) 112 + (char) 0 + (char) 10 + (char) 100);
+
+				//Abrir caja registradora
+				print.pulsePin(EscPos.PinConnector.Pin_2, 10, 100);
 				print.write(imageWrapper, escposImage).feed(1);
 			} catch (Exception e) {
 				LOGGER.log(Level.WARNING, "No se encontro el logo, por lo tanto no lo imprimira");

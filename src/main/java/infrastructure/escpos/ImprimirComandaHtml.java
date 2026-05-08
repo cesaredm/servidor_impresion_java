@@ -11,7 +11,7 @@ import com.github.anastaciocintra.escpos.image.BitonalOrderedDither;
 import com.github.anastaciocintra.escpos.image.CoffeeImageImpl;
 import com.github.anastaciocintra.escpos.image.EscPosImage;
 import com.github.anastaciocintra.escpos.image.RasterBitImageWrapper;
-import domain.PrinterConfig;
+import domain.entities.PrinterConfig;
 import domain.entities.Comanda;
 import domain.entities.DatosGenerales;
 import domain.entities.DatosGeneralesComanda;

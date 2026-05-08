@@ -3,7 +3,7 @@ package httpHandle.handlers;
 import application.usecases.ImprimirPagoUseCase;
 import com.sun.net.httpserver.HttpExchange;
 import domain.entities.Pago;
-import domain.PrinterConfig;
+import domain.entities.PrinterConfig;
 import httpHandle.util.DocumentParser;
 import infrastructure.escpos.ImprimirPago;
 import java.io.IOException;

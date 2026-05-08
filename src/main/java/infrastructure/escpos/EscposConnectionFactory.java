@@ -3,7 +3,7 @@ package infrastructure.escpos;
 import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.output.PrinterOutputStream;
 import com.github.anastaciocintra.output.TcpIpOutputStream;
-import domain.PrinterConfig;
+import domain.entities.PrinterConfig;
 import java.io.IOException;
 import javax.print.PrintService;
 

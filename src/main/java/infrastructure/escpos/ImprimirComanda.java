@@ -5,7 +5,7 @@ import domain.entities.Comanda;
 import domain.entities.DatosGeneralesComanda;
 import domain.entities.Detalles;
 import domain.ports.out.ImpresoraPort;
-import domain.PrinterConfig;
+import domain.entities.PrinterConfig;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.util.List;

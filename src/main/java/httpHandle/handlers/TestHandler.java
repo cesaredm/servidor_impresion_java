@@ -2,7 +2,7 @@ package httpHandle.handlers;
 
 import application.usecases.TestImpresionUseCase;
 import com.sun.net.httpserver.HttpExchange;
-import domain.PrinterConfig;
+import domain.entities.PrinterConfig;
 import infrastructure.escpos.ImprimirTest;
 import java.io.IOException;
 import java.util.Map;

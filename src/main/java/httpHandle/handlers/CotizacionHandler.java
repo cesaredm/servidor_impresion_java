@@ -3,7 +3,7 @@ package httpHandle.handlers;
 import application.usecases.ImprimirCotizacionUseCase;
 import com.sun.net.httpserver.HttpExchange;
 import domain.entities.Cotizacion;
-import domain.PrinterConfig;
+import domain.entities.PrinterConfig;
 import httpHandle.util.DocumentParser;
 import infrastructure.escpos.ImprimirCotizacion;
 import java.io.IOException;

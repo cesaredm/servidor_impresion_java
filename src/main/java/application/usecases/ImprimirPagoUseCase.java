@@ -2,7 +2,7 @@ package application.usecases;
 
 import domain.entities.Pago;
 import domain.ports.out.ImpresoraPort;
-import domain.PrinterConfig;
+import domain.entities.PrinterConfig;
 
 public class ImprimirPagoUseCase {
 

@@ -3,7 +3,7 @@ package httpHandle.handlers;
 import application.usecases.ImprimirFacturaUseCase;
 import com.sun.net.httpserver.HttpExchange;
 import domain.entities.Factura;
-import domain.PrinterConfig;
+import domain.entities.PrinterConfig;
 import httpHandle.util.DocumentParser;
 import infrastructure.escpos.ImprimirFactura;
 import infrastructure.escpos.ImprimirFacturaHtml;
