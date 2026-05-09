@@ -3,6 +3,7 @@ package httpHandle.handlers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import domain.entities.PrinterConfig;
+import infrastructure.state.PrinterStateHolder;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -14,29 +15,26 @@ public abstract class BaseHandler implements HttpHandler {
 
     protected static final Logger LOGGER = Logger.getLogger(BaseHandler.class.getName());
 
-    protected Map<String, PrinterConfig> printers;
-
-    public BaseHandler(Map<String, PrinterConfig> printers) {
-        this.printers = printers;
+    public BaseHandler() {
     }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try {
             agregarCabecerasCors(exchange);
-            
+
             if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
                 exchange.sendResponseHeaders(204, -1);
                 return;
             }
-            
+
             if (!esMetodoValido(exchange)) {
                 sendResponse(exchange, Map.of("message", "Método no permitido"), 405);
                 return;
             }
 
             handleRequest(exchange);
-            
+
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error al procesar solicitud: {0}", e.getMessage());
             sendResponse(exchange, Map.of("message", "Error inesperado: " + e.getMessage()), 500);
@@ -48,7 +46,7 @@ public abstract class BaseHandler implements HttpHandler {
     protected abstract boolean esMetodoValido(HttpExchange exchange);
 
     protected PrinterConfig obtenerConfig(String printerName) {
-        return printers.get(printerName);
+        return PrinterStateHolder.INSTANCE.getPrinter(printerName);
     }
 
     protected PrinterConfig validarImpresora(HttpExchange exchange, String printerName, String ruta) throws IOException {
@@ -57,7 +55,7 @@ public abstract class BaseHandler implements HttpHandler {
             return null;
         }
 
-        PrinterConfig config = printers.get(printerName);
+        PrinterConfig config = PrinterStateHolder.INSTANCE.getPrinter(printerName);
         if (config == null) {
             sendResponse(exchange, Map.of("message", "Impresora '" + printerName + "' no encontrada en la configuración."), 404);
             return null;

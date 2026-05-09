@@ -14,8 +14,8 @@ public class CotizacionHandler extends BaseHandler {
 
     private final ImprimirCotizacionUseCase useCase;
 
-    public CotizacionHandler(Map<String, PrinterConfig> printers) {
-        super(printers);
+    public CotizacionHandler() {
+        super();
         this.useCase = new ImprimirCotizacionUseCase(new ImprimirCotizacion());
     }
 

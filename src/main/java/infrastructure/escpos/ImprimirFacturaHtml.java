@@ -292,7 +292,7 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 					 .row-item td.label {
 					     float: left;
 					     text-align: left;
-					     width: 170px;
+					     width: 180px;
 					 }
 					 
 					 .row-item td.value {

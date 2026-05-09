@@ -7,15 +7,14 @@ import httpHandle.handlers.ImpresorasHandler;
 import httpHandle.handlers.NotFoundHandler;
 import httpHandle.handlers.PagoHandler;
 import httpHandle.handlers.TestHandler;
-import domain.entities.PrinterConfig;
 import java.io.IOException;
-import java.util.Map;
 import java.util.logging.Logger;
+import com.sun.net.httpserver.HttpExchange;
+import httpHandle.handlers.PrinterNetworkHandler;
 
 public class PrintHandler implements com.sun.net.httpserver.HttpHandler {
 
     private static final Logger LOGGER = Logger.getLogger(PrintHandler.class.getName());
-    private final Map<String, PrinterConfig> printers;
 
     private final FacturaHandler facturaHandler;
     private final ComandaHandler comandaHandler;
@@ -24,20 +23,21 @@ public class PrintHandler implements com.sun.net.httpserver.HttpHandler {
     private final TestHandler testHandler;
     private final ImpresorasHandler impresorasHandler;
     private final NotFoundHandler notFoundHandler;
+		private final PrinterNetworkHandler printerNetworkHandler;
 
-    public PrintHandler(Map<String, PrinterConfig> printers) {
-        this.printers = printers;
-        this.facturaHandler = new FacturaHandler(printers);
-        this.comandaHandler = new ComandaHandler(printers);
-        this.cotizacionHandler = new CotizacionHandler(printers);
-        this.pagoHandler = new PagoHandler(printers);
-        this.testHandler = new TestHandler(printers);
-        this.impresorasHandler = new ImpresorasHandler(printers);
-        this.notFoundHandler = new NotFoundHandler(printers);
+    public PrintHandler() {
+        this.facturaHandler = new FacturaHandler();
+        this.comandaHandler = new ComandaHandler();
+        this.cotizacionHandler = new CotizacionHandler();
+        this.pagoHandler = new PagoHandler();
+        this.testHandler = new TestHandler();
+        this.impresorasHandler = new ImpresorasHandler();
+				this.printerNetworkHandler = new PrinterNetworkHandler();
+        this.notFoundHandler = new NotFoundHandler();
     }
 
     @Override
-    public void handle(com.sun.net.httpserver.HttpExchange exchange) throws IOException {
+    public void handle(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
 
         if (path.equals("/impresoras")) {
@@ -69,6 +69,11 @@ public class PrintHandler implements com.sun.net.httpserver.HttpHandler {
             testHandler.handle(exchange);
             return;
         }
+				
+				if(path.startsWith("/printers/")){
+					printerNetworkHandler.handle(exchange);
+					return;
+				}
 
         notFoundHandler.handle(exchange);
     }

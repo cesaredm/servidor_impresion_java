@@ -7,8 +7,8 @@ import java.util.Map;
 
 public class NotFoundHandler extends BaseHandler {
 
-    public NotFoundHandler(java.util.Map<String, PrinterConfig> printers) {
-        super(printers);
+    public NotFoundHandler() {
+        super();
     }
 
     @Override

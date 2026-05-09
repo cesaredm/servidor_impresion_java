@@ -15,8 +15,8 @@ public class PrinterNetworkUseCases {
     private static final Logger LOGGER = Logger.getLogger(PrinterNetworkUseCases.class.getName());
     private final PrinterNetworkService service;
 
-    public PrinterNetworkUseCases() {
-        this.service = new PrinterNetworkServiceImpl();
+    public PrinterNetworkUseCases(PrinterNetworkServiceImpl printerService) {
+        this.service = printerService;
     }
 
     public List<Printer> discoverPrinters(String ipRange) {

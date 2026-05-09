@@ -15,8 +15,8 @@ public class FacturaHandler extends BaseHandler {
 
     private final ImprimirFacturaUseCase useCase;
 
-    public FacturaHandler(Map<String, PrinterConfig> printers) {
-        super(printers);
+    public FacturaHandler() {
+        super();
         this.useCase = new ImprimirFacturaUseCase(new ImprimirFacturaHtml());
     }
 

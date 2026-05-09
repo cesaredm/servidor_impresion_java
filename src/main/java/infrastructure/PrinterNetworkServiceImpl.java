@@ -3,13 +3,13 @@
  */
 package infrastructure;
 
+import infrastructure.state.PrinterStateHolder;
 import domain.PrinterNetworkService;
 import domain.PrinterStatus;
 import domain.entities.Printer;
 import domain.entities.PrinterConfig;
-import infrastructure.PrinterConfigProperties;
+import infrastructure.config.PrinterConfigProperties;
 
-import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.*;
@@ -28,57 +28,13 @@ public class PrinterNetworkServiceImpl implements PrinterNetworkService {
         this.configProps = PrinterConfigProperties.getInstance();
     }
 		
-		private boolean checkPrinterPort(String ipAddress) {
+    private boolean checkPrinterPort(String ipAddress) {
         try (Socket socket = new Socket()) {
             socket.connect(new java.net.InetSocketAddress(ipAddress, PRINTER_PORT), PING_TIMEOUT);
             return true;
         } catch (Exception e) {
             return false;
         }
-    }
-		
-		private PrinterConfig buildPrinterConfig(String name) {
-        String ip = configProps.getProperty(name, "ip");
-        String portStr = configProps.getProperty(name, "port");
-        String copias = configProps.getProperty(name, "copias");
-        String logo = configProps.getProperty(name, "logo");
-        String papelSize = configProps.getProperty(name, "papelSize");
-        String tipoConexion = configProps.getProperty(name, "tipoConexion");
-
-        if (ip == null) {
-            return null;
-        }
-
-        int port = 9100;
-        if (portStr != null) {
-            try {
-                port = Integer.parseInt(portStr);
-            } catch (Exception e) {
-                port = 9100;
-            }
-        }
-
-        int copiasInt = 1;
-        if (copias != null) {
-            try {
-                copiasInt = Integer.parseInt(copias);
-            } catch (Exception e) {
-                copiasInt = 1;
-            }
-        }
-
-        int papelSizeInt = 48;
-        if (papelSize != null) {
-            try {
-                papelSizeInt = Integer.parseInt(papelSize);
-            } catch (Exception e) {
-                papelSizeInt = 48;
-            }
-        }
-
-        String tipoConexionStr = tipoConexion != null ? tipoConexion : "red";
-
-        return new PrinterConfig(name, ip, logo, port, copiasInt, papelSizeInt, tipoConexionStr);
     }
 
     @Override
@@ -142,13 +98,13 @@ public class PrinterNetworkServiceImpl implements PrinterNetworkService {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("El nombre de la impresora es requerido");
         }
-        
+
         configProps.setProperty(name, "ip", config.getIp());
         configProps.setProperty(name, "port", String.valueOf(config.getPuerto()));
         configProps.setProperty(name, "copias", String.valueOf(config.getCopias()));
         configProps.setProperty(name, "papelSize", String.valueOf(config.getPapelSize()));
         configProps.setProperty(name, "tipoConexion", config.getTipoConexion());
-        
+
         if (config.getLogo() != null && !config.getLogo().isEmpty()) {
             configProps.setProperty(name, "logo", config.getLogo());
         }
@@ -159,10 +115,9 @@ public class PrinterNetworkServiceImpl implements PrinterNetworkService {
 
     @Override
     public Optional<PrinterConfig> findByIp(String ipAddress) {
-        for (String printerName : configProps.getAllPrinterNames()) {
-            String storedIp = configProps.getProperty(printerName, "ip");
-            if (ipAddress.equals(storedIp)) {
-                return Optional.of(buildPrinterConfig(printerName));
+        for (PrinterConfig config : PrinterStateHolder.INSTANCE.getAllPrinters()) {
+            if (ipAddress.equals(config.getIp())) {
+                return Optional.of(config);
             }
         }
         return Optional.empty();
@@ -170,34 +125,19 @@ public class PrinterNetworkServiceImpl implements PrinterNetworkService {
 
     @Override
     public Optional<PrinterConfig> findByName(String name) {
-        String ip = configProps.getProperty(name, "ip");
-        if (ip != null) {
-            return Optional.of(buildPrinterConfig(name));
-        }
-        return Optional.empty();
+        PrinterConfig config = PrinterStateHolder.INSTANCE.getPrinter(name);
+        return Optional.ofNullable(config);
     }
 
     @Override
     public List<PrinterConfig> findAll() {
-        List<PrinterConfig> printers = new ArrayList<>();
-
-        for (String printerName : configProps.getAllPrinterNames()) {
-            try {
-                PrinterConfig config = buildPrinterConfig(printerName);
-                if (config != null) {
-                    printers.add(config);
-                }
-            } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "Error al cargar impresora: " + printerName);
-            }
-        }
-
-        return printers;
+        return new ArrayList<>(PrinterStateHolder.INSTANCE.getAllPrinters());
     }
 
     @Override
     public void delete(String name) {
         configProps.removePrinter(name);
         configProps.saveProperties();
+        configProps.loadProperties();
     }
 }

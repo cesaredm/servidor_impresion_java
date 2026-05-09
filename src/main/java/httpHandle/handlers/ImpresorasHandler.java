@@ -8,8 +8,8 @@ import domain.entities.PrinterConfig;
 
 public class ImpresorasHandler extends BaseHandler {
 
-    public ImpresorasHandler(java.util.Map<String, PrinterConfig> printers) {
-        super(printers);
+    public ImpresorasHandler() {
+        super();
     }
 
     @Override

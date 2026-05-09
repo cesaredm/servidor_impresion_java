@@ -15,8 +15,8 @@ public class ComandaHandler extends BaseHandler {
 
     private final ImprimirComandaUseCase useCase;
 
-    public ComandaHandler(Map<String, PrinterConfig> printers) {
-        super(printers);
+    public ComandaHandler() {
+        super();
         this.useCase = new ImprimirComandaUseCase(new ImprimirComandaHtml());
     }
 

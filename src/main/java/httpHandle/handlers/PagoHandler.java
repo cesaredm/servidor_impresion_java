@@ -14,8 +14,8 @@ public class PagoHandler extends BaseHandler {
 
     private final ImprimirPagoUseCase useCase;
 
-    public PagoHandler(Map<String, PrinterConfig> printers) {
-        super(printers);
+    public PagoHandler() {
+        super();
         this.useCase = new ImprimirPagoUseCase(new ImprimirPago());
     }
 

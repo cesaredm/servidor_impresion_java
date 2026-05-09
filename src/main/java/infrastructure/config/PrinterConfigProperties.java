@@ -3,7 +3,7 @@
  */ // Suponiendo que NETBEANS mantiene esto, pero el usuario pidió no eliminar código. 
 // 2025-08-05: Migración a Singleton para unificar acceso a printers.properties.
 
-package infrastructure;
+package infrastructure.config;
 
 import java.io.*;
 import java.util.HashMap;
@@ -11,14 +11,28 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import domain.entities.PrinterConfig;
+import infrastructure.state.PrinterChangeListener;
 import java.util.logging.Logger;
 
 /**
+ * FUENTE DE VERDAD - ARCHIVO FÍSICO.
+ *
  * Singleton responsable de la carga, lectura y escritura centralizada
  * del archivo de configuración printers.properties.
- * Gestiona el formato: [nombre].key = valor
+ *
+ * Rol en la arquitectura:
+ * - Gestiona el archivo C:\impresorasConfig\printers.properties
+ * - Implementa el patrón Observer: notifica a PrinterChangeListener cuando
+ *   el archivo es recargado (loadProperties)
+ * - Es la fuente de datos persistente de la configuración de impresoras
+ *
+ * Formato properties: [nombre].key = valor (ej: cocina.ip = 192.168.1.100)
+ *
+ * @see infrastructure.state.PrinterStateHolder
+ * @see infrastructure.state.PrinterChangeListener
  */ 
 public class PrinterConfigProperties {
 
@@ -27,6 +41,8 @@ public class PrinterConfigProperties {
     
     private static PrinterConfigProperties instance;
     private Properties properties;
+		// Concurrencia
+    private final CopyOnWriteArrayList<PrinterChangeListener> listeners = new CopyOnWriteArrayList<>();
 
     private PrinterConfigProperties() {
         loadProperties();
@@ -37,6 +53,22 @@ public class PrinterConfigProperties {
             instance = new PrinterConfigProperties();
         }
         return instance;
+    }
+
+    public void addListener(PrinterChangeListener listener) {
+        if (listener != null) {
+            listeners.add(listener);
+        }
+    }
+
+    public void removeListener(PrinterChangeListener listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyListeners() {
+        for (PrinterChangeListener listener : listeners) {
+            listener.onPrintersReloaded();
+        }
     }
 
     /**
@@ -56,6 +88,7 @@ public class PrinterConfigProperties {
         } else {
             LOGGER.log(Level.WARNING, "Archivo de configuración no encontrado: " + CONFIG_FILE);
         }
+        notifyListeners();
     }
 
     /**

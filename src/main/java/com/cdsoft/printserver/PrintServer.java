@@ -9,17 +9,10 @@ import httpHandle.PrintHandler;
 import httpHandle.handlers.ConfigHandler;
 import httpHandle.handlers.PrinterNetworkHandler;
 import infra.Mdns;
-import infrastructure.PrinterConfigProperties;
-
-import java.io.FileInputStream;
+import infrastructure.state.PrinterStateHolder;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -38,7 +31,6 @@ public class PrintServer implements Daemon {
     private static final String CONFIG_FILE = "C:\\impresorasConfig\\printers.properties";
     
     private static final int SERVER_PORT = 8088;
-    private static final Map<String, PrinterConfig> printers = new HashMap<>();
     private static HttpServer server;
     private static ExecutorService executor;
 
@@ -74,24 +66,7 @@ public class PrintServer implements Daemon {
     }
 
     public static void loadPrinterConfiguration() throws IOException {
-        // ------------------------------------------------------------------
-        // CÓDIGO ANTERIOR (comentado para referencia)
-        // ------------------------------------------------------------------
-        // Se muevió la lógica de parseo al Singleton infrastructure.PrinterConfigProperties
-        // ------------------------------------------------------------------
-
-        // NUEVA IMPLEMENTACIÓN: Usar el Singleton centralizado
-        PrinterConfigProperties configProps = PrinterConfigProperties.getInstance();
-        
-        // Recargar desde disco para obtener la versión más reciente
-        configProps.loadProperties();
-        
-        // Delegar la carga y construcción de objetos al Singleton
-        printers.putAll(configProps.getAllPrinterConfigs());
-
-        if (printers.isEmpty()) {
-            LOGGER.log(Level.WARNING, "No se cargó ninguna configuración de impresora válida.");
-        }
+        PrinterStateHolder.INSTANCE.init();
     }
 
     // Mantener el resto del código original sin cambios...
@@ -100,16 +75,16 @@ public class PrintServer implements Daemon {
         HttpServer server = HttpServer.create(new InetSocketAddress(SERVER_PORT), 0);
         
         // ... rutas ...
-        server.createContext("/print", new PrintHandler(printers));
-        server.createContext("/impresoras", new PrintHandler(printers));
-        server.createContext("/recargar", new ConfigHandler(printers));
-        server.createContext("/comanda/print", new PrintHandler(printers));
-        server.createContext("/cotizacion/print", new PrintHandler(printers));
-        server.createContext("/pago/print", new PrintHandler(printers));
-        server.createContext("/prueba", new PrintHandler(printers));
-        server.createContext("/printers", new PrinterNetworkHandler(printers));
-        server.createContext("/printers/discover", new PrinterNetworkHandler(printers));
-        server.createContext("/printers/ping", new PrinterNetworkHandler(printers));
+        server.createContext("/print", new PrintHandler());
+        server.createContext("/impresoras", new PrintHandler());
+        server.createContext("/recargar", new ConfigHandler());
+        server.createContext("/comanda/print", new PrintHandler());
+        server.createContext("/cotizacion/print", new PrintHandler());
+        server.createContext("/pago/print", new PrintHandler());
+        server.createContext("/prueba", new PrintHandler());
+        server.createContext("/printers", new PrinterNetworkHandler());
+        server.createContext("/printers/discover", new PrinterNetworkHandler());
+        server.createContext("/printers/ping", new PrinterNetworkHandler());
 
         executor = new ThreadPoolExecutor(
                 2,

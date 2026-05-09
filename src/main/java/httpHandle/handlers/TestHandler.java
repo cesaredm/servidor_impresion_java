@@ -12,8 +12,8 @@ public class TestHandler extends BaseHandler {
 
     private final TestImpresionUseCase useCase;
 
-    public TestHandler(Map<String,PrinterConfig> printers) {
-        super(printers);
+    public TestHandler() {
+        super();
         this.useCase = new TestImpresionUseCase(new ImprimirTest());
     }
 

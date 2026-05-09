@@ -12,6 +12,7 @@ import com.sun.net.httpserver.HttpExchange;
 import domain.entities.PrinterConfig;
 import domain.entities.Printer;
 import httpHandle.util.DocumentParser;
+import infrastructure.PrinterNetworkServiceImpl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -20,14 +21,16 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import infrastructure.state.PrinterStateHolder;
+
 public class PrinterNetworkHandler extends BaseHandler {
 
     private static final Logger LOGGER = Logger.getLogger(PrinterNetworkHandler.class.getName());
     private final PrinterNetworkUseCases useCases;
 
-    public PrinterNetworkHandler(Map<String, PrinterConfig> printers) {
-        super(printers);
-        this.useCases = new PrinterNetworkUseCases();
+    public PrinterNetworkHandler() {
+        super();
+        this.useCases = new PrinterNetworkUseCases(new PrinterNetworkServiceImpl());
     }
 
     @Override
