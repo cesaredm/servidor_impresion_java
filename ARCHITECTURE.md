@@ -34,7 +34,12 @@ src/main/java/
 │       └── TestImpresionUseCase.java
 │
 ├── infrastructure/              # Capa de Infraestructura
-│   ├── escpos/                 # Implementación ESCPOS
+│   ├── config/                  # Configuración y fuente de verdad
+│   │   └── PrinterConfigProperties.java  # FUENTE DE VERDAD - Archivo físico
+│   ├── state/                   # Estado en memoria (Observer pattern)
+│   │   ├── PrinterChangeListener.java   # Interfaz Observer
+│   │   └── PrinterStateHolder.java      # FUENTE DE VERDAD - Memoria (caché)
+│   ├── escpos/                  # Implementación ESCPOS
 │   │   ├── AjustesImpresion.java         # Estilos y utilidades de impresión
 │   │   ├── EscposConnectionFactory.java  # Factory para conexiones USB/Red
 │   │   ├── ConfiguracionesImpresion.java # Utilidades de impresoras
@@ -43,18 +48,20 @@ src/main/java/
 │   │   ├── ImprimirPago.java             # Implementación para pagos
 │   │   ├── ImprimirCotizacion.java       # Implementación para cotizaciones
 │   │   └── ImprimirTest.java             # Implementación para test
-│   └── Mdns.java               # Servicio mDNS para descubrimiento
+│   ├── PrinterNetworkServiceImpl.java    # Servicio de red (discovery/ping)
+│   └── PrinterNetworkService.java        # Interfaz del servicio
 │
 ├── httpHandle/                 # Capa de Interfaz HTTP
 │   ├── PrintHandler.java       # Enrutador principal
-│   └── handlers/               # Handlers HTTP
+│   └── handlers/              # Handlers HTTP
 │       ├── BaseHandler.java            # Clase base con lógica común
 │       ├── FacturaHandler.java         # Handler para facturas
 │       ├── ComandaHandler.java        # Handler para comandas
 │       ├── PagoHandler.java           # Handler para pagos
 │       ├── CotizacionHandler.java    # Handler para cotizaciones
 │       ├── TestHandler.java          # Handler para test
-│       ├── ImpresorasHandler.java   # Handler para listar impresoras
+│       ├── ImpresorasHandler.java   # Handler para listar impresoras del sistema
+│       ├── PrinterNetworkHandler.java # Handler para gestión de impresoras (CRUD + discovery)
 │       ├── NotFoundHandler.java     # Handler para rutas no encontradas
 │       └── ConfigHandler.java       # Handler para recargar configuración
 │
@@ -119,9 +126,13 @@ src/main/java/
 **Responsabilidad:** Implementaciones externas y detalles técnicos.
 
 **Contenido:**
+- **config/PrinterConfigProperties** - Fuente de verdad archivo físico + Observer subject
+- **state/PrinterStateHolder** - Fuente de verdad memoria (caché thread-safe)
+- **state/PrinterChangeListener** - Interfaz Observer
 - Implementaciones de `ImpresoraPort` (ImprimirFactura, etc.)
 - `EscposConnectionFactory` - Crea conexiones USB o Red
 - `AjustesImpresion` - Estilos y utilidades de impresión
+- `PrinterNetworkServiceImpl` - Servicio de red (discovery/ping)
 
 **Características:**
 - Usa la librería `escpos-coffee` de anastaciocintra
@@ -139,6 +150,101 @@ src/main/java/
 - Cada handler extiende `BaseHandler` para lógica común (CORS, validaciones, respuestas)
 - Usa `DocumentParser` para parsear JSON de forma reutilizable
 
+## Estado Global y Patrón Observer
+
+### Arquitectura de Fuentes de Verdad
+
+El proyecto utiliza dos fuentes de verdad sincronizadas mediante el patrón Observer:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  PrinterConfigProperties (ARCHIVO FÍSICO)                   │
+│  - Singleton que gestiona printers.properties                │
+│  - Notifica cambios mediante PrinterChangeListener          │
+│  - Archivo: C:\impresorasConfig\printers.properties          │
+└─────────────────────────────────────────────────────────────┘
+                           │ Observer
+                           ▼ notifyListeners()
+┌─────────────────────────────────────────────────────────────┐
+│  PrinterStateHolder (MEMORIA/CACHÉ)                         │
+│  - Enum singleton con ConcurrentHashMap                     │
+│  - Recibe notificaciones de PrinterConfigProperties          │
+│  - Acceso rápido para consultas (findByName, findByIp)      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Flujo de Sincronización
+
+```
+1. App inicia
+   └── PrinterStateHolder.init() → carga desde PrinterConfigProperties
+
+2. save()/delete()
+   └── PrinterConfigProperties.saveProperties()
+   └── PrinterConfigProperties.loadProperties()
+   └── notifyListeners()
+   └── PrinterStateHolder.onPrintersReloaded()
+   └── printers.clear() + printers.putAll(...)
+
+3. Consultas (findByName, findByIp, findAll)
+   └── PrinterStateHolder (memoria rápida O(1))
+```
+
+### Beneficios
+
+- **Thread-safe**: ConcurrentHashMap para acceso concurrente
+- **Sincronizado**: Siempre actualizado con archivo físico
+- **Desacoplado**: Componentes no dependen directamente de properties
+- **Rápido**: Consultas O(1) vs iterar archivo cada vez
+
+## Rutas API
+
+### Impresión de Documentos
+
+| Método | Ruta | Handler | Descripción |
+|--------|------|---------|-------------|
+| POST | `/print/{nombreImpresora}` | FacturaHandler | Imprimir factura (JSON) |
+| POST | `/comanda/print/{nombreImpresora}` | ComandaHandler | Imprimir comanda (JSON) |
+| POST | `/cotizacion/print/{nombreImpresora}` | CotizacionHandler | Imprimir cotización (JSON) |
+| POST | `/pago/print/{nombreImpresora}` | PagoHandler | Imprimir pago (JSON) |
+| GET | `/prueba/{nombreImpresora}` | TestHandler | Test de impresión |
+
+### Gestión de Impresoras
+
+| Método | Ruta | Handler | Descripción |
+|--------|------|---------|-------------|
+| GET | `/impresoras` | ImpresorasHandler | Listar impresoras disponibles del sistema |
+| GET | `/recargar` | ConfigHandler | Recargar configuración desde archivo |
+| GET | `/printers` | PrinterNetworkHandler | Listar impresoras guardadas |
+| POST | `/printers` | PrinterNetworkHandler | Guardar nueva impresora (JSON) |
+| GET | `/printers/discover?range=X-X` | PrinterNetworkHandler | Escanear red IP range |
+| GET | `/printers/ping?ip=X` | PrinterNetworkHandler | Hacer ping a IP específica |
+| DELETE | `/printers/{nombre}` | PrinterNetworkHandler | Eliminar impresora |
+
+### Ejemplos de Uso
+
+```bash
+# Recargar configuración
+curl http://localhost:8088/recargar
+
+# Listar impresoras guardadas
+curl http://localhost:8088/printers
+
+# Escanear red
+curl "http://localhost:8088/printers/discover?range=192.168.0.1-192.168.0.255"
+
+# Hacer ping
+curl "http://localhost:8088/printers/ping?ip=192.168.1.100"
+
+# Guardar impresora
+curl -X POST http://localhost:8088/printers \
+  -H "Content-Type: application/json" \
+  -d '{"nombre":"cocina","ip":"192.168.1.100","puerto":9100,"copias":1}'
+
+# Eliminar impresora
+curl -X DELETE http://localhost:8088/printers/cocina
+```
+
 ## Cómo Agregar un Nuevo Tipo de Documento
 
 ### Pasos:
@@ -147,9 +253,9 @@ src/main/java/
 
 2. **Crear la implementación en `infrastructure/escpos/`**
    ```java
-   public class ImprimirNuevoDocumento extends AjustesImpresion 
+   public class ImprimirNuevoDocumento extends AjustesImpresion
        implements ImpresoraPort<NuevoDocumento> {
-       
+
        @Override
        public String imprimir(PrinterConfig config, NuevoDocumento doc, boolean copias) {
            // Lógica de impresión
@@ -161,11 +267,11 @@ src/main/java/
    ```java
    public class ImprimirNuevoDocumentoUseCase {
        private final ImpresoraPort<NuevoDocumento> impresoraPort;
-       
+
        public ImprimirNuevoDocumentoUseCase(ImpresoraPort<NuevoDocumento> impresoraPort) {
            this.impresoraPort = impresoraPort;
        }
-       
+
        public String ejecutar(PrinterConfig config, NuevoDocumento doc, boolean copias) {
            return impresoraPort.imprimir(config, doc, copias);
        }
@@ -176,17 +282,17 @@ src/main/java/
    ```java
    public class NuevoDocumentoHandler extends BaseHandler {
        private final ImprimirNuevoDocumentoUseCase useCase;
-       
-       public NuevoDocumentoHandler(Map<String, PrinterConfig> printers) {
-           super(printers);
+
+       public NuevoDocumentoHandler() {
+           super();
            this.useCase = new ImprimirNuevoDocumentoUseCase(new ImprimirNuevoDocumento());
        }
-       
+
        @Override
        protected void handleRequest(HttpExchange exchange) {
            // Parsear documento, validar, imprimir
        }
-       
+
        @Override
        protected boolean esMetodoValido(HttpExchange exchange) {
            return "POST".equalsIgnoreCase(exchange.getRequestMethod());
