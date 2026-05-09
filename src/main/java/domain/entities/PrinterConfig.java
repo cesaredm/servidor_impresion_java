@@ -11,13 +11,16 @@ import java.util.Objects;
  */
 public class PrinterConfig {
 
-    private final String nombre;
-    private final String ip;
-    private final String logo;
-    private final int puerto;
-    private final int copias;
-    private final int papelSize;
-    private final String tipoConexion;
+    private String nombre;
+    private String ip;
+    private String logo;
+    private int puerto = 9100;
+    private int copias = 1;
+    private int papelSize = 48;
+    private String tipoConexion = "red";
+
+    public PrinterConfig() {
+    }
 
     public PrinterConfig(String nombre, String ip, String logo, int puerto, int copias, int papelSize, String tipoConexion) {
         this.nombre = nombre;
@@ -26,6 +29,34 @@ public class PrinterConfig {
         this.copias = copias;
         this.logo = logo;
         this.papelSize = papelSize;
+        this.tipoConexion = tipoConexion;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
+    }
+
+    public void setPuerto(int puerto) {
+        this.puerto = puerto;
+    }
+
+    public void setCopias(int copias) {
+        this.copias = copias;
+    }
+
+    public void setPapelSize(int papelSize) {
+        this.papelSize = papelSize;
+    }
+
+    public void setTipoConexion(String tipoConexion) {
         this.tipoConexion = tipoConexion;
     }
 

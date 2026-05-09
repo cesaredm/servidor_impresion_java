@@ -66,7 +66,7 @@ public class PrinterConfigProperties {
         try {
             file.getParentFile().mkdirs(); // Asegura que la carpeta exista
             try (FileOutputStream fos = new FileOutputStream(file)) {
-                properties.store(fos, "Printers Configuration - Actualizado por PrinterConfigProperties");
+                properties.store(fos, "Configuración de impresoras - Actualizado por PrinterConfigProperties");
                 LOGGER.log(Level.INFO, "Configuración guardada en: " + CONFIG_FILE);
             }
         } catch (IOException e) {
