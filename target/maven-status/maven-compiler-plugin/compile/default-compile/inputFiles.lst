@@ -33,6 +33,7 @@ E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\httpHandle\handler
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\httpHandle\PrintHandler.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\httpHandle\util\DocumentParser.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infra\Mdns.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\config\PrinterConfigProperties.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\escpos\AjustesImpresion.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\escpos\ConfiguracionesImpresion.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\escpos\EscposConnectionFactory.java
@@ -43,5 +44,6 @@ E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\esc
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\escpos\ImprimirFacturaHtml.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\escpos\ImprimirPago.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\escpos\ImprimirTest.java
-E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\PrinterConfigProperties.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\PrinterNetworkServiceImpl.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\state\PrinterChangeListener.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\infrastructure\state\PrinterStateHolder.java

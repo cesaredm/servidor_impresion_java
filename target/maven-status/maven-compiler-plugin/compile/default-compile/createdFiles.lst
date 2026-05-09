@@ -4,6 +4,7 @@ domain\entities\Detalles.class
 httpHandle\handlers\BaseHandler.class
 domain\entities\Factura.class
 domain\ports\out\ImpresoraPort.class
+infrastructure\config\PrinterConfigProperties.class
 httpHandle\handlers\PagoHandler.class
 application\usecases\PrinterNetworkUseCases.class
 infrastructure\escpos\AjustesImpresion.class
@@ -18,6 +19,7 @@ application\usecases\ImprimirCotizacionUseCase.class
 infra\Mdns.class
 domain\entities\Pago.class
 infrastructure\escpos\ImprimirComanda.class
+infrastructure\state\PrinterStateHolder.class
 application\usecases\ImprimirFacturaUseCase.class
 application\usecases\ImprimirPagoUseCase.class
 infrastructure\escpos\ImprimirPago.class
@@ -36,7 +38,7 @@ infrastructure\PrinterNetworkServiceImpl.class
 infrastructure\escpos\ImprimirFacturaHtml.class
 httpHandle\handlers\TestHandler.class
 domain\entities\DatosGeneralesComanda.class
-infrastructure\PrinterConfigProperties.class
+infrastructure\state\PrinterChangeListener.class
 httpHandle\PrintHandler.class
 infrastructure\escpos\ImprimirComandaHtml.class
 infrastructure\escpos\ImprimirCotizacion.class
