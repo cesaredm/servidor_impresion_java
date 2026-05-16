@@ -35,9 +35,11 @@ httpHandle\util\DocumentParser.class
 infrastructure\escpos\ImprimirFactura.class
 httpHandle\handlers\PrinterNetworkHandler.class
 infrastructure\PrinterNetworkServiceImpl.class
+domain\exceptions\ImpresoraNoConectadaException.class
 infrastructure\escpos\ImprimirFacturaHtml.class
 httpHandle\handlers\TestHandler.class
 domain\entities\DatosGeneralesComanda.class
+domain\exceptions\ImpresoraNoInstaladaException.class
 infrastructure\state\PrinterChangeListener.class
 httpHandle\PrintHandler.class
 infrastructure\escpos\ImprimirComandaHtml.class

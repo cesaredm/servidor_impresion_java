@@ -14,9 +14,12 @@ import domain.entities.Factura;
 import domain.entities.Tienda;
 import domain.entities.Totales;
 import domain.ports.out.ImpresoraPort;
+import domain.exceptions.ImpresoraNoConectadaException;
+import domain.exceptions.ImpresoraNoInstaladaException;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.logging.Level;
@@ -94,6 +97,16 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 			// tempFile.deleteOnExit();
 			return "Exito";
 
+		} catch (ImpresoraNoInstaladaException ex) {
+			LOGGER.log(Level.SEVERE, "Impresora no instalada: {0}", ex.getNombreImpresora());
+			return ex.getUserMessage();
+		} catch (ImpresoraNoConectadaException ex) {
+			LOGGER.log(Level.SEVERE, "No se pudo conectar a la impresora: {0}:{1}",
+				new Object[]{ex.getIp(), ex.getPuerto()});
+			return ex.getUserMessage();
+		} catch (IOException ex) {
+			LOGGER.log(Level.SEVERE, "Error en la impresion: {0}", ex.getMessage());
+			return "Error de comunicación con la impresora: " + ex.getMessage();
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Error al imprimir factura HTML", e);
 			return "Error: " + e.getMessage();

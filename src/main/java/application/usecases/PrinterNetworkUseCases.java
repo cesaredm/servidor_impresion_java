@@ -45,21 +45,8 @@ public class PrinterNetworkUseCases {
         return result;
     }
 
-    public void savePrinterConfig(Printer printer) {
-        LOGGER.log(Level.INFO, "Guardando configuracion de impresora: {0}", printer.getIpAddress());
-        
-        boolean alive = service.ping(printer.getIpAddress());
-        
-        PrinterConfig config = toPrinterConfig(printer);
-        config = new PrinterConfig(
-            config.getNombre(),
-            config.getIp(),
-            config.getLogo(),
-            config.getPuerto(),
-            config.getCopias(),
-            config.getPapelSize(),
-            config.getTipoConexion()
-        );
+    public void savePrinterConfig(PrinterConfig config) {
+        LOGGER.log(Level.INFO, "Guardando configuracion de impresora: {0}", config.getNombre());
         
         service.save(config);
         LOGGER.log(Level.INFO, "Impresora guardada: {0}", config.getNombre());

@@ -4,7 +4,10 @@ import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.output.PrinterOutputStream;
 import com.github.anastaciocintra.output.TcpIpOutputStream;
 import domain.entities.PrinterConfig;
+import domain.exceptions.ImpresoraNoConectadaException;
+import domain.exceptions.ImpresoraNoInstaladaException;
 import java.io.IOException;
+import java.net.ConnectException;
 import javax.print.PrintService;
 
 public class EscposConnectionFactory {
@@ -18,14 +21,18 @@ public class EscposConnectionFactory {
     }
 
     private EscPos crearConexionRed(PrinterConfig config) throws IOException {
-        TcpIpOutputStream tcp = new TcpIpOutputStream(config.getIp(), config.getPuerto());
-        return new EscPos(tcp);
+        try {
+            TcpIpOutputStream tcp = new TcpIpOutputStream(config.getIp(), config.getPuerto());
+            return new EscPos(tcp);
+        } catch (ConnectException e) {
+            throw new ImpresoraNoConectadaException(config.getIp(), config.getPuerto());
+        }
     }
 
     private EscPos crearConexionUsb(PrinterConfig config) throws IOException {
         PrintService printService = PrinterOutputStream.getPrintServiceByName(config.getNombre());
         if (printService == null) {
-            throw new IOException("Impresora USB no encontrada: " + config.getNombre());
+            throw new ImpresoraNoInstaladaException(config.getNombre());
         }
         PrinterOutputStream usb = new PrinterOutputStream(printService);
         return new EscPos(usb);

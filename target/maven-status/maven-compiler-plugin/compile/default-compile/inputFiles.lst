@@ -17,6 +17,8 @@ E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\domain\entities\Pr
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\domain\entities\PrinterConfig.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\domain\entities\Tienda.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\domain\entities\Totales.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\domain\exceptions\ImpresoraNoConectadaException.java
+E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\domain\exceptions\ImpresoraNoInstaladaException.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\domain\ports\out\ImpresoraPort.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\domain\PrinterNetworkService.java
 E:\cesar\Documents\NetBeansProjects\PrintServer\src\main\java\domain\PrinterStatus.java

@@ -12,9 +12,10 @@ import domain.entities.Pago;
 import domain.entities.Tienda;
 import domain.ports.out.ImpresoraPort;
 import domain.entities.PrinterConfig;
+import domain.exceptions.ImpresoraNoConectadaException;
+import domain.exceptions.ImpresoraNoInstaladaException;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.ConnectException;
 import java.util.logging.Level;
 
 public class ImprimirPago extends AjustesImpresion implements ImpresoraPort<Pago> {
@@ -109,12 +110,16 @@ public class ImprimirPago extends AjustesImpresion implements ImpresoraPort<Pago
             print.cut(EscPos.CutMode.FULL);
             return "Exito";
 
-        } catch (ConnectException ex) {
-            LOGGER.log(Level.SEVERE, null, "No se pudo conectar a la impresra, revise la configuracion " + ex);
-            return "Fallo la impresion";
+        } catch (ImpresoraNoInstaladaException ex) {
+            LOGGER.log(Level.SEVERE, "Impresora no instalada: {0}", ex.getNombreImpresora());
+            return ex.getUserMessage();
+        } catch (ImpresoraNoConectadaException ex) {
+            LOGGER.log(Level.SEVERE, "No se pudo conectar a la impresora: {0}:{1}",
+                new Object[]{ex.getIp(), ex.getPuerto()});
+            return ex.getUserMessage();
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, null, "Error en la impresion " + ex);
-            return "Error en la impresion";
+            LOGGER.log(Level.SEVERE, "Error en la impresion: {0}", ex.getMessage());
+            return "Error de comunicación con la impresora: " + ex.getMessage();
         }
     }
 }

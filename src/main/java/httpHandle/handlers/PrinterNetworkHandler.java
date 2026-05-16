@@ -122,7 +122,7 @@ public class PrinterNetworkHandler extends BaseHandler {
                 return;
             }
             
-            useCases.savePrinterConfig(toPrinterForSave(config));
+            useCases.savePrinterConfig(config);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -158,15 +158,5 @@ public class PrinterNetworkHandler extends BaseHandler {
             }
         }
         return null;
-    }
-
-    private Printer toPrinterForSave(PrinterConfig config) {
-        return new Printer(
-            config.getNombre(),
-            config.getIp(),
-            null,
-            domain.PrinterStatus.UNKNOWN,
-            config.getPuerto()
-        );
     }
 }
