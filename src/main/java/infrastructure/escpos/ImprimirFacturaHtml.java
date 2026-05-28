@@ -85,11 +85,11 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 
 			RasterBitImageWrapper facturaWrapper = new RasterBitImageWrapper().setJustification(EscPosConst.Justification.Center);
 			RasterBitImageWrapper imageWrapperLogo = new RasterBitImageWrapper().setJustification(EscPosConst.Justification.Center);
-			
+
 			//Abrir caja registradora
 			escpos.pulsePin(EscPos.PinConnector.Pin_2, 10, 100);
 			escpos.write(imageWrapperLogo, escposImageLogo).feed(1);
-			escpos.write(facturaWrapper, escposImage);
+			enviarImagenPorLotes(escpos, imagen, algorithm, facturaWrapper);
 			escpos.feed(4);
 			escpos.cut(EscPos.CutMode.FULL);
 
@@ -433,5 +433,31 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 
 	private String nullSafe(String valor) {
 		return valor != null ? valor : "";
+	}
+
+	private void enviarImagenPorLotes(EscPos escpos, BufferedImage imagen, 
+	                                   Bitonal algorithm, RasterBitImageWrapper wrapper) 
+	    throws IOException {
+	    final int MAX_ALTO_BATCH = 800;
+	    
+	    int altoTotal = imagen.getHeight();
+	    int offsetY = 0;
+	    int batchNum = 0;
+	    
+	    LOGGER.info("Iniciando envio por lotes. Altura imagen: " + altoTotal + "px");
+	    
+	    while (offsetY < altoTotal) {
+	        int alturaBatch = Math.min(MAX_ALTO_BATCH, altoTotal - offsetY);
+	        BufferedImage batch = imagen.getSubimage(0, offsetY, imagen.getWidth(), alturaBatch);
+	        
+	        EscPosImage escPosBatch = new EscPosImage(new CoffeeImageImpl(batch), algorithm);
+	        escpos.write(wrapper, escPosBatch);
+	        
+	        offsetY += alturaBatch;
+	        batchNum++;
+	        LOGGER.info("Batch " + batchNum + " enviado. Progreso: " + offsetY + "/" + altoTotal);
+	    }
+	    
+	    LOGGER.info("Envio por lotes completado. Total batches: " + batchNum);
 	}
 }
