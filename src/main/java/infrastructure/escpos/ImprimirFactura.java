@@ -163,7 +163,7 @@ public class ImprimirFactura extends AjustesImpresion implements ImpresoraPort<F
 			print.writeLF(nota, tienda.getNota());
 			print.feed(1);
 			if (copias) {
-				print.writeLF("Copia");
+				print.writeLF(campoColorMode,"**** Copia ****");
 			}
 			print.feed(4);
 			print.cut(EscPos.CutMode.FULL);

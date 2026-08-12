@@ -90,6 +90,10 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 			escpos.pulsePin(EscPos.PinConnector.Pin_2, 10, 100);
 			escpos.write(imageWrapperLogo, escposImageLogo).feed(1);
 			enviarImagenPorLotes(escpos, imagen, algorithm, facturaWrapper);
+			escpos.feed(1);
+			if (copias) {
+				escpos.writeLF(campoColorMode,"**** Copia ****");
+			}
 			escpos.feed(4);
 			escpos.cut(EscPos.CutMode.FULL);
 

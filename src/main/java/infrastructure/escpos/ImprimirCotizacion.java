@@ -134,10 +134,10 @@ public class ImprimirCotizacion extends AjustesImpresion implements ImpresoraPor
 
             print.writeLF("-".repeat(papelAncho));
             print.writeLF(nota, tienda.getNota());
-            print.feed(1);
+            /*print.feed(1);
             if (copias) {
                 print.writeLF("Copia");
-            }
+            }*/
             print.feed(4);
             print.cut(EscPos.CutMode.FULL);
             return "Exito";
