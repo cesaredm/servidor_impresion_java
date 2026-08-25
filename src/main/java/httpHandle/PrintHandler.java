@@ -4,6 +4,7 @@ import httpHandle.handlers.ComandaHandler;
 import httpHandle.handlers.CotizacionHandler;
 import httpHandle.handlers.FacturaHandler;
 import httpHandle.handlers.ImpresorasHandler;
+import httpHandle.handlers.KardexHandler;
 import httpHandle.handlers.NotFoundHandler;
 import httpHandle.handlers.PagoHandler;
 import httpHandle.handlers.TestHandler;
@@ -22,6 +23,7 @@ public class PrintHandler implements com.sun.net.httpserver.HttpHandler {
     private final PagoHandler pagoHandler;
     private final TestHandler testHandler;
     private final ImpresorasHandler impresorasHandler;
+    private final KardexHandler kardexHandler;
     private final NotFoundHandler notFoundHandler;
 		private final PrinterNetworkHandler printerNetworkHandler;
 
@@ -32,6 +34,7 @@ public class PrintHandler implements com.sun.net.httpserver.HttpHandler {
         this.pagoHandler = new PagoHandler();
         this.testHandler = new TestHandler();
         this.impresorasHandler = new ImpresorasHandler();
+        this.kardexHandler = new KardexHandler();
 				this.printerNetworkHandler = new PrinterNetworkHandler();
         this.notFoundHandler = new NotFoundHandler();
     }
@@ -62,6 +65,11 @@ public class PrintHandler implements com.sun.net.httpserver.HttpHandler {
 
         if (path.startsWith("/pago/print/")) {
             pagoHandler.handle(exchange);
+            return;
+        }
+
+        if (path.startsWith("/kardex/print/")) {
+            kardexHandler.handle(exchange);
             return;
         }
 

@@ -1,6 +1,7 @@
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\application\usecases\ImprimirComandaUseCase.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\application\usecases\ImprimirCotizacionUseCase.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\application\usecases\ImprimirFacturaUseCase.java
+E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\application\usecases\ImprimirKardexUseCase.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\application\usecases\ImprimirPagoUseCase.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\application\usecases\PrinterNetworkUseCases.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\application\usecases\TestImpresionUseCase.java
@@ -10,8 +11,10 @@ E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\domain
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\domain\entities\DatosGenerales.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\domain\entities\DatosGeneralesComanda.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\domain\entities\DatosGeneralesCotizacion.java
+E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\domain\entities\DatosGeneralesKardex.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\domain\entities\Detalles.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\domain\entities\Factura.java
+E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\domain\entities\MovimientoKardex.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\domain\entities\Pago.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\domain\entities\Printer.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\domain\entities\PrinterConfig.java
@@ -28,6 +31,7 @@ E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\httpHa
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\httpHandle\handlers\CotizacionHandler.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\httpHandle\handlers\FacturaHandler.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\httpHandle\handlers\ImpresorasHandler.java
+E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\httpHandle\handlers\KardexHandler.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\httpHandle\handlers\NotFoundHandler.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\httpHandle\handlers\PagoHandler.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\httpHandle\handlers\PrinterNetworkHandler.java
@@ -44,6 +48,7 @@ E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\infras
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\infrastructure\escpos\ImprimirCotizacion.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\infrastructure\escpos\ImprimirFactura.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\infrastructure\escpos\ImprimirFacturaHtml.java
+E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\infrastructure\escpos\ImprimirKardexHtml.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\infrastructure\escpos\ImprimirPago.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\infrastructure\escpos\ImprimirTest.java
 E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\src\main\java\infrastructure\PrinterNetworkServiceImpl.java

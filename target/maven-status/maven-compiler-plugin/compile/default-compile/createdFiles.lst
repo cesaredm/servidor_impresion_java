@@ -13,15 +13,19 @@ infrastructure\escpos\EscposConnectionFactory.class
 application\usecases\ImprimirComandaUseCase.class
 application\usecases\TestImpresionUseCase.class
 domain\PrinterStatus.class
+infrastructure\escpos\ImprimirKardexHtml.class
 domain\entities\Tienda.class
 infrastructure\escpos\ImprimirTest.class
 application\usecases\ImprimirCotizacionUseCase.class
+application\usecases\ImprimirKardexUseCase.class
 infra\Mdns.class
 domain\entities\Pago.class
 infrastructure\escpos\ImprimirComanda.class
 infrastructure\state\PrinterStateHolder.class
+httpHandle\handlers\KardexHandler.class
 application\usecases\ImprimirFacturaUseCase.class
 application\usecases\ImprimirPagoUseCase.class
+domain\entities\MovimientoKardex.class
 infrastructure\escpos\ImprimirPago.class
 httpHandle\handlers\ImpresorasHandler.class
 infrastructure\escpos\ConfiguracionesImpresion.class
@@ -35,6 +39,7 @@ httpHandle\util\DocumentParser.class
 infrastructure\escpos\ImprimirFactura.class
 httpHandle\handlers\PrinterNetworkHandler.class
 infrastructure\PrinterNetworkServiceImpl.class
+domain\entities\DatosGeneralesKardex.class
 domain\exceptions\ImpresoraNoConectadaException.class
 infrastructure\escpos\ImprimirFacturaHtml.class
 httpHandle\handlers\TestHandler.class

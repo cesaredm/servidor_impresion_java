@@ -207,6 +207,7 @@ El proyecto utiliza dos fuentes de verdad sincronizadas mediante el patrón Obse
 | POST | `/comanda/print/{nombreImpresora}` | ComandaHandler | Imprimir comanda (JSON) |
 | POST | `/cotizacion/print/{nombreImpresora}` | CotizacionHandler | Imprimir cotización (JSON) |
 | POST | `/pago/print/{nombreImpresora}` | PagoHandler | Imprimir pago (JSON) |
+| POST | `/kardex/print/{nombreImpresora}` | KardexHandler | Imprimir comprobante de movimiento (JSON) |
 | GET | `/prueba/{nombreImpresora}` | TestHandler | Test de impresión |
 
 ### Gestión de Impresoras

@@ -81,6 +81,7 @@ public class PrintServer implements Daemon {
         server.createContext("/comanda/print", new PrintHandler());
         server.createContext("/cotizacion/print", new PrintHandler());
         server.createContext("/pago/print", new PrintHandler());
+        server.createContext("/kardex/print", new PrintHandler());
         server.createContext("/prueba", new PrintHandler());
         server.createContext("/printers", new PrinterNetworkHandler());
         server.createContext("/printers/discover", new PrinterNetworkHandler());

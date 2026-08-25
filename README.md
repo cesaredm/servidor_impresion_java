@@ -233,6 +233,8 @@ cocina.tipoConexion=red
 **url:8088/print/{nombre_de_impresora}** : Imprimir factura
 - Imprimir comanda **POST**
 **url:8088/comanda/print/{nombre_de_impresora}** : Imprimir Comanda
+- Imprimir comprobante de movimiento Kardex **POST**
+**url:8088/kardex/print/{nombre_de_impresora}** : Imprimir movimiento de inventario
 - Listar impresoras instaladas **GET**
 **url:8088/impresoras** : Listar las impresoras instaladas
 - Impresion de test **GET**
