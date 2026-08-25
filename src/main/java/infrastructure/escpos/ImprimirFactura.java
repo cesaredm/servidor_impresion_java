@@ -85,8 +85,13 @@ public class ImprimirFactura extends AjustesImpresion implements ImpresoraPort<F
 				print.writeLF(texto(datosGenerales.getCliente()));
 			}
 
-			print.write(campo, "Atendido por : Cajero #");
-			print.writeLF(String.valueOf(datosGenerales.getEmpleado()));
+			String baseAtendido = "Cajero #" + datosGenerales.getEmpleado();
+			String username = datosGenerales.getUsername();
+			String atendido = (username != null && !username.trim().isEmpty())
+					? username.trim() + " (" + baseAtendido + ")"
+					: baseAtendido;
+			print.write(campo, "Atendido por : ");
+			print.writeLF(atendido);
 			print.write(campo, "N. factura: #");
 			print.writeLF(String.valueOf(datosGenerales.getFactura()));
 			print.write(campo, "Comprador: ");

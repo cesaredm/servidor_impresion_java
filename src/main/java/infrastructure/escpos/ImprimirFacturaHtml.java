@@ -140,16 +140,23 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 		sb.append("</div>");
 		sb.append("</header>");
 
-		// INFO VENTA
+		// INFO VENTA (tabla 2 columnas: evita solape label/valor con nombres largos en Flying Saucer)
 		sb.append("<section class='section-info'>");
-		sb.append("<div class='row'><span class='label'>FECHA:</span><span class='value'>").append(nullSafe(datos.getFecha())).append("</span></div>");
-		sb.append("<div class='row'><span class='label'>FACTURA:</span><span class='value'># ").append(datos.getFactura()).append("</span></div>");
+		sb.append("<table class='info-table'>");
+		sb.append("<tr><td class='info-label'>FECHA:</td><td class='info-value'>").append(nullSafe(datos.getFecha())).append("</td></tr>");
+		sb.append("<tr><td class='info-label'>FACTURA:</td><td class='info-value'># ").append(datos.getFactura()).append("</td></tr>");
+		sb.append("<tr><td class='info-label'>VENTA:</td><td class='info-value bold'>").append(nullSafe(datos.getTipoVenta())).append("</td></tr>");
 		if (!nullSafe(datos.getCliente()).equals("")) {
-			sb.append("<div class='row'><span class='label'>CLIENTE:</span><span class='bold value'>").append(nullSafe(datos.getCliente())).append("</span></div>");
+			appendFilaInfoExpandible(sb, "CLIENTE", nullSafe(datos.getCliente()), true);
 		}
-		sb.append("<div class='row'><span class='label'>VENTA:</span><span class='bold value'>").append(nullSafe(datos.getTipoVenta())).append("</span></div>");
-		sb.append("<div class='row'><span class='label'>COMPRADOR:</span><span class='bold value'>").append(nullSafe(datos.getComprador())).append("</span></div>");
-		sb.append("<div class='row'><span class='label'>ATENDIDO:</span><span class='bold value'>Cajero# ").append(datos.getEmpleado()).append("</span></div>");
+		appendFilaInfoExpandible(sb, "COMPRADOR", nullSafe(datos.getComprador()), true);
+		String baseAtendido = "Cajero# " + datos.getEmpleado();
+		String username = datos.getUsername();
+		String atendido = (username != null && !username.trim().isEmpty())
+				? username.trim() + " (" + baseAtendido + ")"
+				: baseAtendido;
+		appendFilaInfoExpandible(sb, "ATENDIDO", atendido, true);
+		sb.append("</table>");
 		sb.append("</section>");
 
 		// TABLA DE DETALLES
@@ -336,6 +343,55 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
                text-align: right;
                word-wrap: break-word;
            }
+
+					 /* Tabla info venta: 2 columnas, sin floats (nombres largos no se montan) */
+					 .info-table {
+					     width: 100%;
+					     border-collapse: collapse;
+					     margin-bottom: 2px;
+					 }
+
+					 .info-table td {
+					     padding: 1px 0;
+					     vertical-align: top;
+					     font-size: 29px;
+					 }
+
+					 .info-table td.info-label {
+					     width: 35%;
+					     text-align: left;
+					 }
+
+					 .info-table td.info-value {
+					     width: 65%;
+					     text-align: right;
+					     white-space: normal;
+					     word-wrap: break-word;
+					     word-break: break-all;
+					 }
+
+					 .info-table td.info-value.bold {
+					     font-weight: bold;
+					 }
+
+					 .info-table td.info-label-block {
+					     text-align: left;
+					     font-size: 29px;
+					     padding-top: 4px;
+					 }
+
+					 .info-table td.info-value-block {
+					     width: 100%;
+					     text-align: left;
+					     white-space: normal;
+					     word-wrap: break-word;
+					     word-break: break-all;
+					     padding-bottom: 4px;
+					 }
+
+					 .info-table td.info-value-block.bold {
+					     font-weight: bold;
+					 }
 					 
 					 /*----------------------------------------*/
 					 
@@ -437,6 +493,18 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 
 	private String nullSafe(String valor) {
 		return valor != null ? valor : "";
+	}
+
+	private void appendFilaInfoExpandible(StringBuilder sb, String label, String valor, boolean bold) {
+		final int UMBRAL = 25;
+		String boldClass = bold ? " bold" : "";
+		String texto = valor != null ? valor : "";
+		if (texto.length() > UMBRAL) {
+			sb.append("<tr><td class='info-label-block' colspan='2'>").append(label).append(":</td></tr>");
+			sb.append("<tr><td class='info-value-block").append(boldClass).append("' colspan='2'>").append(texto).append("</td></tr>");
+		} else {
+			sb.append("<tr><td class='info-label'>").append(label).append(":</td><td class='info-value").append(boldClass).append("'>").append(texto).append("</td></tr>");
+		}
 	}
 
 	private void enviarImagenPorLotes(EscPos escpos, BufferedImage imagen, 

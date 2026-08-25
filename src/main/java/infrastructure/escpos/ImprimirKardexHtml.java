@@ -212,7 +212,7 @@ public class ImprimirKardexHtml extends AjustesImpresion implements ImpresoraPor
 
                 .ticket-kardex__date-value {
                     white-space: nowrap;
-                    font-size: 23px;
+                    font-size: 27px;
                 }
 
                 .ticket-kardex__product {

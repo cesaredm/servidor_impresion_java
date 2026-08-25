@@ -9,6 +9,7 @@ public class DatosGenerales {
     private String comprador;
     private String cliente;
     private String anotaciones;
+    private String username;
 
     public String getFecha() {
         return fecha;
@@ -64,6 +65,14 @@ public class DatosGenerales {
 
     public void setNota(String anotaciones) {
         this.anotaciones = anotaciones;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
 }
