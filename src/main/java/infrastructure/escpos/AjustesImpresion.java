@@ -140,16 +140,16 @@ public abstract class AjustesImpresion {
             File outputFile = new File(outputFilePath);
             // Guardar la imagen como archivo PNG (puedes cambiar el formato si lo deseas)
             ImageIO.write(image, "PNG", outputFile);
-            System.out.println("Imagen guardada exitosamente en: " + outputFile.getAbsolutePath());
+            LOGGER.info("Imagen guardada exitosamente en: " + outputFile.getAbsolutePath());
         } else {
-            System.err.println("No se pudo descargar la imagen desde la URL.");
+            LOGGER.warning("No se pudo descargar la imagen desde la URL.");
         }
     }
 
-    //funcion para obtener la imagen o logo local desde la carpeta de impresorasConfig
+    //funcion para obtener la imagen o logo local desde la carpeta de datos (ver AppDirectories)
     public BufferedImage obtenerImagenLocal(String urlImage) throws IOException {
         try {
-            BufferedImage image = ImageIO.read(new File("C:/impresorasConfig/" + urlImage));
+            BufferedImage image = ImageIO.read(infrastructure.config.AppDirectories.logoFile(urlImage).toFile());
             return image;
         } finally {
 

@@ -160,8 +160,7 @@ El proyecto utiliza dos fuentes de verdad sincronizadas mediante el patrón Obse
 ┌─────────────────────────────────────────────────────────────┐
 │  PrinterConfigProperties (ARCHIVO FÍSICO)                   │
 │  - Singleton que gestiona printers.properties                │
-│  - Notifica cambios mediante PrinterChangeListener          │
-│  - Archivo: C:\impresorasConfig\printers.properties          │
+│    (ruta por SO, ver AppDirectories; Windows: C:\impresorasConfig) │
 └─────────────────────────────────────────────────────────────┘
                            │ Observer
                            ▼ notifyListeners()

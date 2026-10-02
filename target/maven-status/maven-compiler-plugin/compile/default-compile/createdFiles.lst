@@ -26,6 +26,7 @@ httpHandle\handlers\KardexHandler.class
 application\usecases\ImprimirFacturaUseCase.class
 application\usecases\ImprimirPagoUseCase.class
 domain\entities\MovimientoKardex.class
+infrastructure\logging\LoggingConfig.class
 infrastructure\escpos\ImprimirPago.class
 httpHandle\handlers\ImpresorasHandler.class
 infrastructure\escpos\ConfiguracionesImpresion.class
@@ -35,6 +36,7 @@ domain\entities\Comanda.class
 httpHandle\handlers\FacturaHandler.class
 domain\entities\PrinterConfig.class
 domain\entities\Cotizacion.class
+infrastructure\config\AppDirectories.class
 httpHandle\util\DocumentParser.class
 infrastructure\escpos\ImprimirFactura.class
 httpHandle\handlers\PrinterNetworkHandler.class

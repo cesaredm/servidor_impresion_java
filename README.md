@@ -207,6 +207,34 @@ netsh advfirewall firewall add rule name="Allow Port 8088" dir=in action=allow p
 el servidor trabaja con un archivo de configuracion de impresoras llamadao printers.properties donde se define la configuracion de las impresoras
 de la siguiente manera, ocupa los siguientes campos por ahora.
 
+> **Multiplataforma:** la carpeta de datos se resuelve por SO en
+> `infrastructure.config.AppDirectories` (ver tabla abajo).
+> (El instalador InnoSetup documentado más abajo solo aplica a Windows.)
+
+### Carpeta de datos por sistema operativo
+
+Es la carpeta base donde la app lee y escribe sus archivos:
+`printers.properties`, los logos locales (`cocina.logo=logo.png`) y los
+logs de emergencia. En Windows es la histórica `C:\impresorasConfig`,
+así que las instalaciones actuales no cambian nada.
+
+| SO | Carpeta de datos |
+|---|---|
+| Windows | `C:\impresorasConfig` |
+| Linux | `/etc/printserver` |
+| macOS | `/Library/Application Support/PrintServer` |
+
+Prioridad de resolución (la primera que aplique gana):
+
+1. `-Dprintserver.configdir=RUTA` → manda sobre todo (ideal para dev o rutas custom).
+2. Variable de entorno `PRINTSERVER_CONFIG_DIR` → lo mismo sin tocar el arranque.
+3. Ruta por SO de la tabla.
+4. Los logs de emergencia (`logs/`) cuelgan de esta misma carpeta.
+
+> **Permisos:** en Linux/macOS el servicio necesita escritura en su carpeta
+> (`/etc/printserver` pide root). Si corres como usuario normal, usa el
+> override apuntando a una ruta propia (ej. `/opt/printserver/data`).
+
 - cocina.ip: que lleva la ip de la impresora en la red
 - cocina.port: el puerto de la impresora en este caso el puerto raw normamente siempre es 9100
 - cocina.copias: numero de copias que se nesecitan, si no ocupo el valor debe ser 0
@@ -239,3 +267,40 @@ cocina.tipoConexion=red
 **url:8088/impresoras** : Listar las impresoras instaladas
 - Impresion de test **GET**
 **url:8088/prueba/{nombre_de_impresora}** : Impresion de test de impresion
+
+## Logs de la aplicación
+
+La app escribe su propio archivo de log con rotación, sin depender de
+la consola ni de procrun (en `StartMode=exe` los `stdOutput/stdError.log`
+quedan vacíos porque Launch4j no reenvía los pipes al servicio).
+
+- **Archivo:** `<carpeta_de_arranque>\log\printserver.0.log`
+  (rota a `.1`, `.2`... `.4`, 5 archivos de 2 MB).
+  En producción la carpeta de arranque es `{app}` (el `StartPath` del
+  servicio), así que queda junto a los logs de procrun.
+- **Nivel:** `INFO` por defecto.
+- **Configuración (opcional):**
+  - `-Dprintserver.logdir=RUTA` → cambia la carpeta del log.
+  - Variable de entorno `PRINTSERVER_LOG_DIR` → lo mismo sin tocar el arranque.
+  - `-Dprintserver.loglevel=FINE` o env `PRINTSERVER_LOG_LEVEL` → cambia el nivel.
+  - Fallback de emergencia: subcarpeta `logs` de la carpeta de datos
+    según el SO (solo si no hay permiso de escritura en la principal).
+- **Nota:** la consola en dev (NetBeans) sigue mostrando todo igual.
+
+### Niveles de log
+
+`INFO` es un **umbral**, no un filtro exacto. Con el nivel por defecto ves:
+
+| Nivel | ¿Se ve con INFO? | Ejemplo en la app |
+|---|---|---|
+| `SEVERE` | ✅ Sí | Errores graves |
+| `WARNING` | ✅ Sí | Advertencias |
+| `INFO` | ✅ Sí | Arranque, impresiones, mDNS (casi todo el log actual) |
+| `CONFIG` | ❌ No | Detalle de configuración fina (hoy no se usa) |
+| `FINE` / `FINER` / `FINEST` | ❌ No | Debug detallado (hoy no se usa) |
+
+O sea: con `INFO` ves el 100% de lo que la app loguea hoy (todo el código
+usa `INFO`, `WARNING` o `SEVERE`). Los niveles ocultos (`FINE` y menores)
+son solo para debug futuro: si algún día se agrega un `LOGGER.fine(...)`,
+solo aparecerá bajando el umbral con `-Dprintserver.loglevel=FINE` o
+`PRINTSERVER_LOG_LEVEL=FINE`.

@@ -1,0 +1,10 @@
+oct 02, 2026 11:11:33 A.M. infrastructure.logging.LoggingConfig setup
+INFORMACIÓN: Log en archivo: E:\cesar\Documents\NetBeansProjects\servidor_impresion_java\log\printserver.0.log (nivel INFO)
+oct 02, 2026 11:11:33 A.M. infrastructure.config.PrinterConfigProperties loadProperties
+INFORMACIÓN: Configuración cargada desde: C:\impresorasConfig\printers.properties
+oct 02, 2026 11:11:34 A.M. com.cdsoft.printserver.PrintServer startServer
+INFORMACIÓN: Servidor de impresión iniciado en el puerto 8,088
+oct 02, 2026 11:11:34 A.M. com.cdsoft.printserver.PrintServer startServer
+INFORMACIÓN: Esperando peticiones en http://localhost:{0}/print/{{nombre_impresora}}
+oct 02, 2026 11:11:41 A.M. infra.Mdns iniciarMDNS
+INFORMACIÓN: Servicio mDNS registrado: printserver en el puerto 8,088

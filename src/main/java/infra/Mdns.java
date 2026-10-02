@@ -56,12 +56,13 @@ public class Mdns {
 
             // Registra el servicio con JmDNS
             jmdns.registerService(serviceInfo);
-            System.out.println("Servicio mDNS registrado: " + serviceInfo.getName() + " en el puerto " + serviceInfo.getPort());
+            LOGGER.log(Level.INFO, "Servicio mDNS registrado: {0} en el puerto {1}",
+                    new Object[]{serviceInfo.getName(), serviceInfo.getPort()});
 
             // Mantén el servicio vivo (en un entorno real, esto se manejaría en el ciclo de vida de tu app)
             //Thread.sleep(3600000); // Mantiene el servicio vivo por 1 hora
         } catch (IOException e) {
-            System.err.println("Error en el registro mDNS: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error en el registro mDNS: {0}", e.getMessage());
         }
     }
 
@@ -134,7 +135,7 @@ public class Mdns {
                 }
             }
         } catch (SocketException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.WARNING, "Error al listar interfaces de red: {0}", e.getMessage());
         }
         return null;
     }

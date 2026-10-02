@@ -8,6 +8,7 @@ import domain.entities.PrinterConfig;
 import httpHandle.PrintHandler;
 import httpHandle.handlers.ConfigHandler;
 import httpHandle.handlers.PrinterNetworkHandler;
+import infrastructure.logging.LoggingConfig;
 import infra.Mdns;
 import infrastructure.state.PrinterStateHolder;
 import java.io.IOException;
@@ -27,15 +28,14 @@ import org.apache.commons.daemon.DaemonInitException;
 public class PrintServer implements Daemon {
 
     private static final Logger LOGGER = Logger.getLogger(PrintServer.class.getName());
-    
-    private static final String CONFIG_FILE = "C:\\impresorasConfig\\printers.properties";
-    
+
     private static final int SERVER_PORT = 8088;
     private static HttpServer server;
     private static ExecutorService executor;
 
     @Override
     public void init(DaemonContext context) throws DaemonInitException {
+        LoggingConfig.setup();
         try {
             loadPrinterConfiguration();
         } catch (IOException e) {
@@ -134,6 +134,7 @@ public class PrintServer implements Daemon {
     }
 
     public static void main(String[] args) {
+        LoggingConfig.setup();
         PrintServer serverPrint = new PrintServer();
         try {
             serverPrint.init(null);

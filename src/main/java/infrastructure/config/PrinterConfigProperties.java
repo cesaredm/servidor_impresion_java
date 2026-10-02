@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  * del archivo de configuración printers.properties.
  *
  * Rol en la arquitectura:
- * - Gestiona el archivo C:\impresorasConfig\printers.properties
+ * - Gestiona el archivo printers.properties (ruta por SO, ver AppDirectories)
  * - Implementa el patrón Observer: notifica a PrinterChangeListener cuando
  *   el archivo es recargado (loadProperties)
  * - Es la fuente de datos persistente de la configuración de impresoras
@@ -37,7 +37,10 @@ import java.util.logging.Logger;
 public class PrinterConfigProperties {
 
     private static final Logger LOGGER = Logger.getLogger(PrinterConfigProperties.class.getName());
-    private static final String CONFIG_FILE = "C:\\impresorasConfig\\printers.properties";
+
+    private static String configFile() {
+        return AppDirectories.configFile().toString();
+    }
     
     private static PrinterConfigProperties instance;
     private Properties properties;
@@ -77,16 +80,17 @@ public class PrinterConfigProperties {
      */
     public synchronized void loadProperties() {
         properties = new Properties();
-        File file = new File(CONFIG_FILE);
+        String configFile = configFile();
+        File file = new File(configFile);
         if (file.exists()) {
             try (FileInputStream fis = new FileInputStream(file)) {
                 properties.load(fis);
-                LOGGER.log(Level.INFO, "Configuración cargada desde: " + CONFIG_FILE);
+                LOGGER.log(Level.INFO, "Configuración cargada desde: " + configFile);
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "Error al cargar properties: " + e.getMessage());
             }
         } else {
-            LOGGER.log(Level.WARNING, "Archivo de configuración no encontrado: " + CONFIG_FILE);
+            LOGGER.log(Level.WARNING, "Archivo de configuración no encontrado: " + configFile);
         }
         notifyListeners();
     }
@@ -95,12 +99,13 @@ public class PrinterConfigProperties {
      * Guarda el estado actual de las propiedades a disco.
      */
     public synchronized void saveProperties() {
-        File file = new File(CONFIG_FILE);
+        String configFile = configFile();
+        File file = new File(configFile);
         try {
             file.getParentFile().mkdirs(); // Asegura que la carpeta exista
             try (FileOutputStream fos = new FileOutputStream(file)) {
                 properties.store(fos, "Configuración de impresoras - Actualizado por PrinterConfigProperties");
-                LOGGER.log(Level.INFO, "Configuración guardada en: " + CONFIG_FILE);
+                LOGGER.log(Level.INFO, "Configuración guardada en: " + configFile);
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Error al guardar properties: " + e.getMessage());
