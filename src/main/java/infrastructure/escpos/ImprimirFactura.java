@@ -88,7 +88,7 @@ public class ImprimirFactura extends AjustesImpresion implements ImpresoraPort<F
 			String baseAtendido = "Cajero #" + datosGenerales.getEmpleado();
 			String username = datosGenerales.getUsername();
 			String atendido = (username != null && !username.trim().isEmpty())
-					? username.trim() + " (" + baseAtendido + ")"
+					? username.trim() + " (#" + datosGenerales.getEmpleado() + ")"
 					: baseAtendido;
 			print.write(campo, "Atendido por : ");
 			print.writeLF(atendido);

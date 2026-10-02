@@ -153,7 +153,7 @@ public class ImprimirFacturaHtml extends AjustesImpresion implements ImpresoraPo
 		String baseAtendido = "Cajero# " + datos.getEmpleado();
 		String username = datos.getUsername();
 		String atendido = (username != null && !username.trim().isEmpty())
-				? username.trim() + " (" + baseAtendido + ")"
+				? username.trim() + " (#" + datos.getEmpleado() + ")"
 				: baseAtendido;
 		appendFilaInfoExpandible(sb, "ATENDIDO", atendido, true);
 		sb.append("</table>");
